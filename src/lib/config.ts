@@ -11,6 +11,7 @@ import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { defaultAppConfig } from "./rules";
 import { AppConfigService } from "./service";
+import { appendOpLog } from "./adminOps";
 
 export const CONFIG_DIR = process.env.CONFIG_DIR
   ? process.env.CONFIG_DIR
@@ -71,6 +72,7 @@ export async function setConfig(appConfig: AppConfig) {
     );
     try {
       writeFileSync(configPath, appConfigStr);
+      appendOpLog({ type: "save", at: new Date().toISOString() });
       return true;
     } catch (err) {
       console.error(`写入失败：${err}，请检查~`);

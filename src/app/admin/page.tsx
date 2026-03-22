@@ -3,6 +3,7 @@ import { Verify } from "@/components/verify/Verify";
 import { Settings } from "@/components/settings/Settings";
 import { getConfig, mergeConfig } from "@/lib/config";
 import { isAuthorizedByCookie } from "@/lib/auth";
+import { AdminOpsPanel } from "@/components/admin/AdminOpsPanel";
 
 export const revalidate = 0;
 
@@ -26,7 +27,10 @@ export default async function AdminPage() {
         </div>
 
         {authorized ? (
-          <Settings config={mergeConfig(appConfig)} />
+          <>
+            <AdminOpsPanel />
+            <Settings config={mergeConfig(appConfig)} />
+          </>
         ) : (
           <div className="pt-8">
             <Verify />
