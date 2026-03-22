@@ -7,7 +7,8 @@ const DEFAULT_UPGRADE_COMMAND =
   "curl -fsSL https://raw.githubusercontent.com/cshaizhihao/home-fusion/main/scripts/install-12379.sh | sudo bash";
 
 export async function GET() {
-  const currentVersion = process.env.VERSION || "unknown";
+  const currentCommit = process.env.VERSION || "unknown";
+  const currentVol = process.env.APP_VERSION || "Vol.unknown";
   const upgradeCommand = process.env.UPGRADE_COMMAND || DEFAULT_UPGRADE_COMMAND;
   const inDocker = String(process.env.IS_DOCKER || "0") === "1";
 
@@ -17,26 +18,32 @@ export async function GET() {
     : "可直接使用服务端一键升级。";
 
   try {
-    const res = await fetch(`https://api.github.com/repos/${REPO}/commits/main`, {
-      headers: {
-        Accept: "application/vnd.github+json",
-      },
-      next: { revalidate: 60 },
-    });
+    const [commitRes, volRes] = await Promise.all([
+      fetch(`https://api.github.com/repos/${REPO}/commits/main`, {
+        headers: { Accept: "application/vnd.github+json" },
+        next: { revalidate: 60 },
+      }),
+      fetch(`https://raw.githubusercontent.com/${REPO}/main/VERSION`, {
+        next: { revalidate: 60 },
+      }),
+    ]);
 
-    const latest = await res.json();
+    const latest = await commitRes.json();
     const latestSha = latest?.sha ? String(latest.sha).slice(0, 7) : "unknown";
     const latestTime = latest?.commit?.author?.date || null;
+    const latestVol = volRes.ok ? (await volRes.text()).trim() : "Vol.unknown";
 
     const hasUpdate =
-      currentVersion !== "unknown" && latestSha !== "unknown"
-        ? !currentVersion.includes(latestSha)
+      currentCommit !== "unknown" && latestSha !== "unknown"
+        ? !currentCommit.includes(latestSha)
         : null;
 
     return NextResponse.json({
       repo: REPO,
-      currentVersion,
+      currentCommit,
       latestSha,
+      currentVol,
+      latestVol,
       latestTime,
       hasUpdate,
       upgradeCommand,
@@ -47,8 +54,10 @@ export async function GET() {
   } catch {
     return NextResponse.json({
       repo: REPO,
-      currentVersion,
+      currentCommit,
       latestSha: "unknown",
+      currentVol,
+      latestVol: "Vol.unknown",
       latestTime: null,
       hasUpdate: null,
       upgradeCommand,

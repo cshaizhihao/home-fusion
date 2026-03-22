@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 
 type UpdateInfo = {
   repo: string;
-  currentVersion: string;
+  currentCommit: string;
   latestSha: string;
+  currentVol: string;
+  latestVol: string;
   latestTime: string | null;
   hasUpdate: boolean | null;
   upgradeCommand: string;
@@ -95,8 +97,8 @@ export function UpdateCenter() {
               <p className="text-sm opacity-80">正在获取更新信息...</p>
             ) : (
               <div className="space-y-2 text-sm">
-                <p>当前版本：<code>{data?.currentVersion || "unknown"}</code></p>
-                <p>最新提交：<code>{data?.latestSha || "unknown"}</code></p>
+                <p>当前版本：<code>{data?.currentVol || "Vol.unknown"}</code> <span className="opacity-70">({data?.currentCommit || "unknown"})</span></p>
+                <p>最新版本：<code>{data?.latestVol || "Vol.unknown"}</code> <span className="opacity-70">({data?.latestSha || "unknown"})</span></p>
                 <p>升级模式：{data?.mode === "ssh_required" ? "SSH 执行" : "服务端直升"}</p>
                 {data?.modeHint && <p className="opacity-80">提示：{data.modeHint}</p>}
                 <p>
