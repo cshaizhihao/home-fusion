@@ -1,7 +1,10 @@
 import { createHash } from "crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "fs";
 import { join } from "path";
-import { CONFIG_DIR } from "@/lib/config";
+
+const CONFIG_DIR = process.env.CONFIG_DIR
+  ? process.env.CONFIG_DIR
+  : join(process.cwd(), "src", "config");
 
 const ADMIN_DIR = join(CONFIG_DIR, ".admin");
 const HISTORY_DIR = join(ADMIN_DIR, "history");
