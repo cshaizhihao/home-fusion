@@ -27,16 +27,18 @@ export function AdminOpsPanel() {
   const [healthItems, setHealthItems] = useState<any[]>([]);
   const [envInfo, setEnvInfo] = useState<any>(null);
   const [moduleCheck, setModuleCheck] = useState<any>(null);
+  const [modulePresets, setModulePresets] = useState<any>(null);
 
   const load = async () => {
     setLoading(true);
     try {
-      const [res1, res2, res3, res4, res5] = await Promise.all([
+      const [res1, res2, res3, res4, res5, res6] = await Promise.all([
         fetch("/api/admin/history", { cache: "no-store" }),
         fetch("/api/admin/upgrade-queue", { cache: "no-store" }),
         fetch("/api/admin/health", { cache: "no-store" }),
         fetch("/api/admin/env", { cache: "no-store" }),
         fetch("/api/admin/modules/check", { cache: "no-store" }),
+        fetch("/api/admin/modules/preset", { cache: "no-store" }),
       ]);
       const json = await res1.json();
       if (json?.success) {
@@ -51,6 +53,8 @@ export function AdminOpsPanel() {
       if (e?.success) setEnvInfo(e.data || null);
       const m = await res5.json();
       if (m?.success) setModuleCheck(m.data || null);
+      const p = await res6.json();
+      if (p?.success) setModulePresets(p.data || null);
     } finally {
       setLoading(false);
     }
@@ -154,6 +158,20 @@ export function AdminOpsPanel() {
     await load();
   };
 
+  const applyPreset = async (preset: string) => {
+    if (!window.confirm(`应用模块预设 ${preset} ?`)) return;
+    const res = await fetch("/api/admin/modules/preset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ preset }),
+    });
+    const json = await res.json();
+    if (!json?.success) {
+      alert(`预设应用失败: ${json?.message || "unknown"}`);
+    }
+    await load();
+  };
+
   const filteredLogs = useMemo(() => (logFilter === "all" ? logs : logs.filter((l) => l.type === logFilter)), [logs, logFilter]);
   const totalPages = Math.max(1, Math.ceil(filteredLogs.length / PAGE_SIZE));
   const pagedLogs = useMemo(() => {
@@ -197,6 +215,24 @@ export function AdminOpsPanel() {
           ) : (
             <div className="opacity-80">未发现依赖风险</div>
           )}
+        </div>
+      )}
+
+      {modulePresets && (
+        <div className="mb-3 rounded border border-indigo-300/30 bg-indigo-100/10 p-2 text-xs">
+          <div className="font-semibold mb-2">模块预设（v0.6 收官）</div>
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(modulePresets).map(([k, v]: any) => (
+              <button key={k} onClick={() => applyPreset(k)} className="rounded bg-indigo-500/70 px-2 py-1 hover:bg-indigo-500">
+                {v.label}
+              </button>
+            ))}
+          </div>
+          <div className="mt-2 opacity-80">
+            {Object.entries(modulePresets).map(([k, v]: any) => (
+              <div key={`desc-${k}`}>{v.label}: {v.desc}</div>
+            ))}
+          </div>
         </div>
       )}
 

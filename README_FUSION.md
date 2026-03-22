@@ -106,3 +106,7 @@ node scripts/import-imsyy-config.mjs \
   - 新增模块依赖检查接口：`/api/admin/modules/check`
   - `/admin` 显示模块依赖风险（天气/音乐/技能）
   - 保存配置时执行开关联动约束（关闭模块自动收敛相关配置）
+- 插件化第三版（收官）：
+  - 模块预设一键切换：`Personal / Minimal / Showcase`
+  - 新增接口：`/api/admin/modules/preset`
+  - `/admin` 可直接应用预设并刷新校验结果
