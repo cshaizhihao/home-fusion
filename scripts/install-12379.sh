@@ -28,9 +28,14 @@ install_pkg(){
 ensure_env_password(){
   mkdir -p "$APP_DIR"
 
+  local force_reset="${FORCE_PASSWORD_RESET:-0}"
   local pass="${HOME_FUSION_PASSWORD:-}"
-  if [[ -z "$pass" && -f "$ENV_FILE" ]]; then
+
+  if [[ "$force_reset" != "1" && -z "$pass" && -f "$ENV_FILE" ]]; then
     pass="$(grep -E '^PASSWORD=' "$ENV_FILE" | tail -n1 | cut -d= -f2- || true)"
+    if [[ -n "$pass" ]]; then
+      log "检测到已存在 PASSWORD，默认复用（如需重置：FORCE_PASSWORD_RESET=1）"
+    fi
   fi
 
   if [[ -z "$pass" ]]; then
