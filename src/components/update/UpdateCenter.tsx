@@ -9,6 +9,8 @@ type UpdateInfo = {
   latestTime: string | null;
   hasUpdate: boolean | null;
   upgradeCommand: string;
+  mode?: "ssh_required" | "server_upgrade";
+  modeHint?: string;
 };
 
 export function UpdateCenter() {
@@ -53,7 +55,8 @@ export function UpdateCenter() {
       });
       const json = await res.json();
       if (!json?.ok) {
-        setUpgradeLog(`升级失败：${json?.message || "未知错误"}\n\n${json?.output || ""}`);
+        const extra = json?.command ? `\n\n请在 SSH 执行：\n${json.command}` : "";
+        setUpgradeLog(`升级失败：${json?.message || "未知错误"}\n\n${json?.output || ""}${extra}`);
       } else {
         setUpgradeLog(`升级命令已执行。\n\n${json?.output || ""}`);
         await fetchInfo();
@@ -94,6 +97,8 @@ export function UpdateCenter() {
               <div className="space-y-2 text-sm">
                 <p>当前版本：<code>{data?.currentVersion || "unknown"}</code></p>
                 <p>最新提交：<code>{data?.latestSha || "unknown"}</code></p>
+                <p>升级模式：{data?.mode === "ssh_required" ? "SSH 执行" : "服务端直升"}</p>
+                {data?.modeHint && <p className="opacity-80">提示：{data.modeHint}</p>}
                 <p>
                   更新状态：
                   {data?.hasUpdate === true
@@ -119,10 +124,14 @@ export function UpdateCenter() {
                   </a>
                   <button
                     onClick={handleUpgrade}
-                    disabled={upgrading}
+                    disabled={upgrading || data?.mode === "ssh_required"}
                     className="rounded-md bg-emerald-500/70 px-3 py-1 text-xs hover:bg-emerald-500 disabled:opacity-60"
                   >
-                    {upgrading ? "升级中..." : "一键升级（服务端执行）"}
+                    {data?.mode === "ssh_required"
+                      ? "当前环境需 SSH 升级"
+                      : upgrading
+                      ? "升级中..."
+                      : "一键升级（服务端执行）"}
                   </button>
                   <button
                     onClick={handleCopy}
