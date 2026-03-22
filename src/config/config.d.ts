@@ -150,10 +150,20 @@ interface Resources {
   bodyHtml?: string;
 }
 
+interface MusicConfig {
+  api?: string;
+  server?: string;
+  type?: string;
+  id?: string;
+  autoplay?: boolean;
+  loop?: string;
+}
+
 interface ModulesConfig {
   weather?: boolean;
   music?: boolean;
   sliders?: boolean;
+  timeProgress?: boolean;
 }
 
 export interface AppConfig {
@@ -175,5 +185,6 @@ export interface AppConfig {
   sitesConfig?: SitesConfig; // sites 渲染组件配置项
   sliders?: SlidersConfig;
   resources?: Resources;
+  musicConfig?: MusicConfig;
   modules?: ModulesConfig;
 }

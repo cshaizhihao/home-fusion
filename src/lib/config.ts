@@ -120,7 +120,7 @@ export const transformConfig = (appConfig: AppConfig) => {
     bgConfig,
     globalStyle,
     footer,
-    modules = { weather: true, music: true, sliders: true },
+    modules = { weather: true, music: true, sliders: true, timeProgress: true },
     ...others
   } = appConfig;
 

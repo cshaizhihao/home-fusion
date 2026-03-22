@@ -16,6 +16,8 @@ import { Controller } from "@/components/controller/Controller";
 import { Weather } from "@/components/weather/Weather";
 import { pg } from "@/lib/db";
 import { UpdateCenter } from "@/components/update/UpdateCenter";
+import { Player } from "@/components/player/Player";
+import { YearProgress } from "@/components/time/YearProgress";
 
 export const revalidate = 0;
 
@@ -41,6 +43,7 @@ export default async function Home() {
     resources,
     footers,
     modules,
+    musicConfig,
     ...others
   } = transformConfig(await getConfig());
 
@@ -63,6 +66,8 @@ export default async function Home() {
       }
     >
       {modules?.weather !== false && globalStyle?.weather && <Weather size={18} />}
+      {modules?.music !== false && <Player size={18} musicConfig={musicConfig as any} />}
+      {modules?.timeProgress !== false && <YearProgress />}
       <UpdateCenter />
       {renderMain({
         ...others,

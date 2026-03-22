@@ -606,6 +606,42 @@ const slidersRules: RuleItem[] = [
   },
 ];
 
+const musicRules: RuleItem[] = [
+  {
+    field: "api",
+    isRequired: false,
+    label: "歌曲 API 地址",
+    default: "https://api-meting.imsyy.top",
+  },
+  {
+    field: "server",
+    isRequired: false,
+    label: "平台",
+    default: "netease",
+    desc: "netease / tencent",
+  },
+  {
+    field: "type",
+    isRequired: false,
+    label: "类型",
+    default: "playlist",
+    desc: "song / playlist / album / artist",
+  },
+  {
+    field: "id",
+    isRequired: false,
+    label: "播放ID",
+    default: "7452421335",
+  },
+  {
+    controlKey: "checkbox",
+    field: "$boolean",
+    isRequired: false,
+    label: "播放器行为",
+    items: [{ label: "自动播放", value: "autoplay" }],
+  },
+];
+
 const modulesRules: RuleItem[] = [
   {
     controlKey: "checkbox",
@@ -614,10 +650,11 @@ const modulesRules: RuleItem[] = [
     label: "模块开关",
     items: [
       { label: "天气模块", value: "weather" },
-      { label: "音乐模块（背景音频）", value: "music" },
+      { label: "音乐模块（Meting/APlayer）", value: "music" },
       { label: "技能模块（Sliders）", value: "sliders" },
+      { label: "时光进度条", value: "timeProgress" },
     ],
-    default: ["weather", "music", "sliders"],
+    default: ["weather", "music", "sliders", "timeProgress"],
   },
 ];
 
@@ -675,6 +712,7 @@ export const AppRules = [
   { title: "标题设置", rules: subTitleRules, field: "subTitleConfig" },
   { title: "社媒设置", rules: socialRules, field: "socialConfig" },
   { title: "技能设置", rules: slidersRules, field: "sliders" },
+  { title: "音乐设置", rules: musicRules, field: "musicConfig" },
   { title: "模块设置", rules: modulesRules, field: "modules" },
   { title: "资源设置", rules: resourcesRules, field: "resources" },
 ];
@@ -837,10 +875,19 @@ export const defaultAppConfig: AppConfig = {
     direction: "col-reverse",
     isExternal: true,
   },
+  musicConfig: {
+    api: "https://api-meting.imsyy.top",
+    server: "netease",
+    type: "playlist",
+    id: "7452421335",
+    autoplay: false,
+    loop: "all",
+  },
   modules: {
     weather: true,
     music: true,
     sliders: true,
+    timeProgress: true,
   },
   resources: {
     css: [],
