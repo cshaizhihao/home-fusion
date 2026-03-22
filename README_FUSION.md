@@ -125,3 +125,6 @@ node scripts/import-imsyy-config.mjs \
 - 高风险动作防误触：
   - 发布 / 回滚 / 升级执行 均增加二次确认
   - 增加动作冷却（防连点重复触发）
+- CI 可视化增强：
+  - `/admin` 直接展示 GHCR 工作流最近 5 次构建状态
+  - 点击可跳转 GitHub Actions 详情

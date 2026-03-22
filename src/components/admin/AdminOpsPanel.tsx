@@ -28,19 +28,21 @@ export function AdminOpsPanel() {
   const [envInfo, setEnvInfo] = useState<any>(null);
   const [moduleCheck, setModuleCheck] = useState<any>(null);
   const [modulePresets, setModulePresets] = useState<any>(null);
+  const [ciRuns, setCiRuns] = useState<any[]>([]);
   const [cooldownUntil, setCooldownUntil] = useState<Record<string, number>>({});
   const [nowMs, setNowMs] = useState(Date.now());
 
   const load = async () => {
     setLoading(true);
     try {
-      const [res1, res2, res3, res4, res5, res6] = await Promise.all([
+      const [res1, res2, res3, res4, res5, res6, res7] = await Promise.all([
         fetch("/api/admin/history", { cache: "no-store" }),
         fetch("/api/admin/upgrade-queue", { cache: "no-store" }),
         fetch("/api/admin/health", { cache: "no-store" }),
         fetch("/api/admin/env", { cache: "no-store" }),
         fetch("/api/admin/modules/check", { cache: "no-store" }),
         fetch("/api/admin/modules/preset", { cache: "no-store" }),
+        fetch("/api/admin/ci-status", { cache: "no-store" }),
       ]);
       const json = await res1.json();
       if (json?.success) {
@@ -57,6 +59,8 @@ export function AdminOpsPanel() {
       if (m?.success) setModuleCheck(m.data || null);
       const p = await res6.json();
       if (p?.success) setModulePresets(p.data || null);
+      const c = await res7.json();
+      if (c?.success) setCiRuns(c.data?.runs || []);
     } finally {
       setLoading(false);
     }
@@ -240,6 +244,25 @@ export function AdminOpsPanel() {
           ) : (
             <div className="opacity-80">未发现依赖风险</div>
           )}
+        </div>
+      )}
+
+      {ciRuns?.length > 0 && (
+        <div className="mb-3 rounded border border-sky-300/30 bg-sky-100/10 p-2 text-xs">
+          <div className="font-semibold mb-2">GHCR 构建状态（最近 5 次）</div>
+          <div className="space-y-1">
+            {ciRuns.map((r) => (
+              <a key={r.id} href={r.url} target="_blank" rel="noreferrer" className="block rounded bg-black/20 px-2 py-1 hover:bg-black/30">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="truncate">{r.title}</span>
+                  <span className={`text-[11px] ${r.conclusion === "success" ? "text-emerald-300" : r.conclusion === "failure" ? "text-red-300" : "text-amber-300"}`}>
+                    {r.status}/{r.conclusion || "-"}
+                  </span>
+                </div>
+                <div className="opacity-70 text-[11px]">{r.branch} · {r.sha} · {new Date(r.updatedAt).toLocaleString()}</div>
+              </a>
+            ))}
+          </div>
         </div>
       )}
 
