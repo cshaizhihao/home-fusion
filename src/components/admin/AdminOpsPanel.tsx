@@ -24,13 +24,15 @@ export function AdminOpsPanel() {
   const [detail, setDetail] = useState<{ version: string; raw: string } | null>(null);
   const [diffInfo, setDiffInfo] = useState<{ latestVersion: string | null; changedKeys: string[]; summary: string } | null>(null);
   const [queueJobs, setQueueJobs] = useState<any[]>([]);
+  const [healthItems, setHealthItems] = useState<any[]>([]);
 
   const load = async () => {
     setLoading(true);
     try {
-      const [res1, res2] = await Promise.all([
+      const [res1, res2, res3] = await Promise.all([
         fetch("/api/admin/history", { cache: "no-store" }),
         fetch("/api/admin/upgrade-queue", { cache: "no-store" }),
+        fetch("/api/admin/health", { cache: "no-store" }),
       ]);
       const json = await res1.json();
       if (json?.success) {
@@ -39,6 +41,8 @@ export function AdminOpsPanel() {
       }
       const q = await res2.json();
       if (q?.success) setQueueJobs(q.data || []);
+      const h = await res3.json();
+      if (h?.success) setHealthItems(h.data || []);
     } finally {
       setLoading(false);
     }
@@ -132,6 +136,13 @@ export function AdminOpsPanel() {
     });
     const json = await res.json();
     if (!json?.success) alert(`执行失败: ${json?.message || "unknown"}`);
+    await load();
+  };
+
+  const runHealth = async () => {
+    const res = await fetch("/api/admin/health", { method: "POST" });
+    const json = await res.json();
+    if (!json?.success) alert(`健康检查失败: ${json?.message || "unknown"}`);
     await load();
   };
 
@@ -259,6 +270,21 @@ export function AdminOpsPanel() {
               {j.output ? <div className="mt-1 opacity-80 line-clamp-2">{j.output}</div> : null}
             </div>
           )) : <div className="opacity-70">暂无任务</div>}
+        </div>
+      </div>
+
+      <div className="mt-4 rounded border border-white/15 bg-black/30 p-3 text-xs">
+        <div className="mb-2 flex items-center justify-between">
+          <div className="font-semibold">健康检查（v0.5 基础告警）</div>
+          <button onClick={runHealth} className="rounded bg-amber-500/70 px-2 py-1 hover:bg-amber-500">执行健康检查</button>
+        </div>
+        <div className="max-h-32 overflow-auto rounded bg-black/40 p-2">
+          {healthItems.length ? healthItems.map((h, idx) => (
+            <div key={`${h.at}-${idx}`} className="mb-2 border-b border-white/10 pb-1 last:mb-0 last:border-0">
+              <div className={h.status === "ok" ? "text-emerald-300" : "text-red-300"}>{h.status.toUpperCase()} · {new Date(h.at).toLocaleString()}</div>
+              <div className="opacity-80">{h.message}</div>
+            </div>
+          )) : <div className="opacity-70">暂无健康记录</div>}
         </div>
       </div>
 

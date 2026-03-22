@@ -63,6 +63,9 @@ node scripts/import-imsyy-config.mjs \
 - `/admin` 新增一键回滚：
   - 在版本详情弹窗可直接“回滚到此版本”
   - 记录 rollback 日志
+- `/admin` 新增健康检查基础版：
+  - 手动执行健康检查
+  - 展示健康历史与告警状态（ok/warn）
 
 ### v0.4.x 最新进展
 
