@@ -15,6 +15,7 @@ import dynamic from "next/dynamic";
 import { Controller } from "@/components/controller/Controller";
 import { Weather } from "@/components/weather/Weather";
 import { pg } from "@/lib/db";
+import { UpdateCenter } from "@/components/update/UpdateCenter";
 
 export const revalidate = 0;
 
@@ -61,6 +62,7 @@ export default async function Home() {
       }
     >
       {globalStyle?.weather && <Weather size={18} />}
+      <UpdateCenter />
       {renderMain({
         ...others,
         footers,

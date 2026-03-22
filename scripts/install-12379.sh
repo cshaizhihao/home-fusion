@@ -52,8 +52,9 @@ else
   git clone --branch "$BRANCH" "$REPO_URL" "$APP_DIR"
 fi
 
-log "构建镜像..."
-docker build -t "$IMAGE_NAME" "$APP_DIR"
+VERSION="$(git -C "$APP_DIR" rev-parse --short HEAD || echo unknown)"
+log "构建镜像... version=${VERSION}"
+docker build --build-arg VERSION="$VERSION" -t "$IMAGE_NAME" "$APP_DIR"
 
 if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
   docker rm -f "$CONTAINER_NAME" >/dev/null
