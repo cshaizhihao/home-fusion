@@ -116,6 +116,17 @@ const globalStyleRules: RuleItem[] = [
     ],
   },
   {
+    controlKey: "select",
+    field: "fusionTheme",
+    isRequired: false,
+    label: "融合主题风格",
+    items: [
+      { label: "Remio（默认）", value: "remio" },
+      { label: "Imsyy（轻量）", value: "imsyy" },
+    ],
+    default: "remio",
+  },
+  {
     controlKey: "checkbox",
     field: "$boolean",
     isRequired: false,
@@ -683,6 +694,7 @@ export const defaultAppConfig: AppConfig = {
     fallback: "",
     fonts: [],
     weather: false,
+    fusionTheme: "remio",
   },
   layoutConfig: {
     gapSize: "md",

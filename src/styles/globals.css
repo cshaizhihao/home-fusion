@@ -22,6 +22,31 @@ body {
     rgb(var(--background-start-rgb));
 }
 
+/* v0.6 多主题引擎（基础版） */
+body.fusion-remio {
+  --fusion-card-radius: 16px;
+}
+
+body.fusion-imsyy {
+  --fusion-card-radius: 10px;
+}
+
+body.fusion-imsyy .shadow-mio-link {
+  box-shadow: 0 8px 24px rgba(80, 175, 218, 0.22) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+body.fusion-remio .shadow-mio-link {
+  box-shadow: 0 10px 30px rgba(93, 70, 232, 0.28) !important;
+}
+
+body.fusion-imsyy .rounded,
+body.fusion-imsyy .rounded-md,
+body.fusion-imsyy .rounded-lg,
+body.fusion-imsyy .rounded-xl {
+  border-radius: var(--fusion-card-radius) !important;
+}
+
 .mio-hidden {
   opacity: 0 !important;
   transition: all ease-in-out 0.3s;

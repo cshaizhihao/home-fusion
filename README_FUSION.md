@@ -82,3 +82,9 @@ node scripts/import-imsyy-config.mjs \
   - 操作日志导出（admin-ops.log）
   - 发布前差异预览（与最近发布版本对比）
 - [ ] v0.6.x：强融合版（多主题 / 插件化 / 多环境）
+
+### v0.6.x 最新进展（起步）
+
+- 多主题引擎基础版：
+  - `globalStyle.fusionTheme` 支持 `remio | imsyy`
+  - 根据主题切换全局视觉风格（卡片圆角 / 阴影）

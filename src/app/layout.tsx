@@ -37,9 +37,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const appConfig = await getConfig();
+  const fusionTheme = appConfig?.globalStyle?.fusionTheme || "remio";
+
   return (
     <html lang="zh-CN" suppressHydrationWarning>
-      <body className={`mio-scroll mio-fonts overflow-y-auto`}>
+      <body className={`mio-scroll mio-fonts overflow-y-auto fusion-${fusionTheme}`}>
         <AppProviders appConfig={appConfig} ver={process.env.VERSION || ""}>
           <Layout>{children}</Layout>
           <StyleRegistry />

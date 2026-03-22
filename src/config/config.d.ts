@@ -141,6 +141,7 @@ interface GlobalStyle {
   primaryColor?: string;
   theme?: string;
   weather?: boolean;
+  fusionTheme?: "remio" | "imsyy";
 }
 
 interface Resources {
