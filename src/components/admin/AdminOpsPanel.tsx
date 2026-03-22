@@ -26,15 +26,17 @@ export function AdminOpsPanel() {
   const [queueJobs, setQueueJobs] = useState<any[]>([]);
   const [healthItems, setHealthItems] = useState<any[]>([]);
   const [envInfo, setEnvInfo] = useState<any>(null);
+  const [moduleCheck, setModuleCheck] = useState<any>(null);
 
   const load = async () => {
     setLoading(true);
     try {
-      const [res1, res2, res3, res4] = await Promise.all([
+      const [res1, res2, res3, res4, res5] = await Promise.all([
         fetch("/api/admin/history", { cache: "no-store" }),
         fetch("/api/admin/upgrade-queue", { cache: "no-store" }),
         fetch("/api/admin/health", { cache: "no-store" }),
         fetch("/api/admin/env", { cache: "no-store" }),
+        fetch("/api/admin/modules/check", { cache: "no-store" }),
       ]);
       const json = await res1.json();
       if (json?.success) {
@@ -47,6 +49,8 @@ export function AdminOpsPanel() {
       if (h?.success) setHealthItems(h.data || []);
       const e = await res4.json();
       if (e?.success) setEnvInfo(e.data || null);
+      const m = await res5.json();
+      if (m?.success) setModuleCheck(m.data || null);
     } finally {
       setLoading(false);
     }
@@ -178,6 +182,21 @@ export function AdminOpsPanel() {
           <div className="font-semibold">配置环境：{envInfo.profile}</div>
           <div className="opacity-80">配置文件：{envInfo.fileName}</div>
           <div className="opacity-70">支持环境：{(envInfo.supported || []).join(" / ")}</div>
+        </div>
+      )}
+
+      {moduleCheck && (
+        <div className={`mb-3 rounded border p-2 text-xs ${moduleCheck.healthy ? "border-emerald-300/30 bg-emerald-100/10" : "border-amber-300/30 bg-amber-100/10"}`}>
+          <div className="font-semibold">模块依赖检查：{moduleCheck.healthy ? "通过" : "存在风险"}</div>
+          {moduleCheck.warnings?.length ? (
+            <ul className="mt-1 list-disc pl-4">
+              {moduleCheck.warnings.map((w: string, i: number) => (
+                <li key={i}>{w}</li>
+              ))}
+            </ul>
+          ) : (
+            <div className="opacity-80">未发现依赖风险</div>
+          )}
         </div>
       )}
 

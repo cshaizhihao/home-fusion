@@ -56,11 +56,32 @@ export async function getConfig(throwError: boolean = false) {
   }
 }
 
+function normalizeConfigByModules(appConfig: AppConfig): AppConfig {
+  const next = { ...(appConfig as any) } as AppConfig;
+  const modules = (next.modules || {}) as any;
+
+  if (modules.weather === false) {
+    next.globalStyle = { ...(next.globalStyle || {}), weather: false };
+  }
+
+  if (modules.music === false) {
+    next.bgConfig = { ...(next.bgConfig || {}), audio: "" } as any;
+  }
+
+  if (modules.sliders === false) {
+    next.sliders = { ...(next.sliders || {}), hidden: true } as any;
+  }
+
+  return next;
+}
+
 export async function setConfig(appConfig: AppConfig) {
+  const normalized = normalizeConfigByModules(appConfig);
+
   if (IS_DATABASE) {
     try {
       const res = await Service.upsertConfig({
-        ...appConfig,
+        ...normalized,
         version: "latest",
       });
       return !!res;
@@ -69,7 +90,7 @@ export async function setConfig(appConfig: AppConfig) {
       return false;
     }
   } else {
-    const appConfigStr = JSON.stringify(appConfig, null, 2);
+    const appConfigStr = JSON.stringify(normalized, null, 2);
     const configPath = join(CONFIG_DIR, FILE_NAME);
     console.log(
       "Set File Config>>>",

@@ -96,3 +96,7 @@ node scripts/import-imsyy-config.mjs \
   - 支持 `CONFIG_PROFILE=dev|staging|prod`
   - 对应配置文件：`config.dev.json / config.staging.json / config.json`
   - `/admin` 可查看当前环境与配置文件
+- 插件化第二版：
+  - 新增模块依赖检查接口：`/api/admin/modules/check`
+  - `/admin` 显示模块依赖风险（天气/音乐/技能）
+  - 保存配置时执行开关联动约束（关闭模块自动收敛相关配置）
