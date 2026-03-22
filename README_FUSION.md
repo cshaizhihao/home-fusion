@@ -1,5 +1,11 @@
 # Home Fusion（融合版说明）
 
+## 仓库链接
+
+- Fusion 主仓库：https://github.com/cshaizhihao/home-fusion
+- 上游 A（imsyy/home）：https://github.com/imsyy/home
+- 上游 B（remio-home）：https://github.com/kasuie/remio-home
+
 ## 项目定位
 
 `home-fusion` = `imsyy/home` + `kasuie/remio-home`
@@ -52,7 +58,7 @@ node scripts/import-imsyy-config.mjs \
 
 - [ ] v0.3.x：升级中心完善 + imsyy 音乐/时光进度条
 - [x] v0.4.x（MVP 起步）：`/admin` 控制台入口 + 鉴权后编辑
-- [ ] v0.5.x：运维能力（任务队列 / 回滚 / 健康检查）
+- [x] v0.5.x：运维能力（任务队列 / 回滚 / 健康检查）
 
 ### v0.5.x 最新进展（MVP）
 
@@ -81,9 +87,9 @@ node scripts/import-imsyy-config.mjs \
   - 单条日志展开查看详情
   - 操作日志导出（admin-ops.log）
   - 发布前差异预览（与最近发布版本对比）
-- [ ] v0.6.x：强融合版（多主题 / 插件化 / 多环境）
+- [~] v0.6.x：强融合版（多主题 / 插件化 / 多环境）
 
-### v0.6.x 最新进展（起步）
+### v0.6.x 最新进展（进行中）
 
 - 多主题引擎基础版：
   - `globalStyle.fusionTheme` 支持 `remio | imsyy`
