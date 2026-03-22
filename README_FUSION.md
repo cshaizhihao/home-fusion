@@ -60,6 +60,9 @@ node scripts/import-imsyy-config.mjs \
   - 添加升级任务
   - 执行下一个任务
   - 查看任务状态与输出（pending/running/success/failed）
+- `/admin` 新增一键回滚：
+  - 在版本详情弹窗可直接“回滚到此版本”
+  - 记录 rollback 日志
 
 ### v0.4.x 最新进展
 

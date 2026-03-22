@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 type Item = { version: string; mtime: string; file: string };
 type Log = { type: string; at: string; version?: string; remark?: string };
 
-type FilterType = "all" | "publish" | "save";
+type FilterType = "all" | "publish" | "save" | "rollback";
 
 const REMARK_TEMPLATES = ["配置微调", "主题样式更新", "链接内容更新", "发布前备份"];
 const PAGE_SIZE = 8;
@@ -19,6 +19,7 @@ export function AdminOpsPanel() {
   const [logPage, setLogPage] = useState(1);
   const [remarkDraft, setRemarkDraft] = useState(REMARK_TEMPLATES[0]);
   const [publishResult, setPublishResult] = useState<{ ok: boolean; message: string; version?: string } | null>(null);
+  const [rollbacking, setRollbacking] = useState(false);
   const [expandedLogKey, setExpandedLogKey] = useState<string | null>(null);
   const [detail, setDetail] = useState<{ version: string; raw: string } | null>(null);
   const [diffInfo, setDiffInfo] = useState<{ latestVersion: string | null; changedKeys: string[]; summary: string } | null>(null);
@@ -77,6 +78,28 @@ export function AdminOpsPanel() {
       setDetail({ version, raw: json.data.raw });
     } else {
       alert(`加载版本详情失败: ${json?.message || "unknown"}`);
+    }
+  };
+
+  const rollbackVersion = async (version: string) => {
+    if (!window.confirm(`确认回滚到版本 ${version} ?`)) return;
+    setRollbacking(true);
+    try {
+      const res = await fetch("/api/admin/rollback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ version }),
+      });
+      const json = await res.json();
+      if (json?.success) {
+        setPublishResult({ ok: true, message: "回滚成功", version });
+        setDetail(null);
+        await load();
+      } else {
+        setPublishResult({ ok: false, message: `回滚失败: ${json?.message || "unknown"}`, version });
+      }
+    } finally {
+      setRollbacking(false);
     }
   };
 
@@ -184,6 +207,7 @@ export function AdminOpsPanel() {
               <option value="all">全部</option>
               <option value="publish">仅发布</option>
               <option value="save">仅保存</option>
+              <option value="rollback">仅回滚</option>
             </select>
           </div>
           <div className="max-h-52 overflow-auto rounded bg-black/30 p-2 text-xs">
@@ -251,7 +275,16 @@ export function AdminOpsPanel() {
           <div className="w-full max-w-3xl rounded border border-white/20 bg-[#111] p-3" onClick={(e) => e.stopPropagation()}>
             <div className="mb-2 flex items-center justify-between">
               <h3 className="text-sm font-semibold">版本详情：{detail.version}</h3>
-              <button className="rounded bg-white/10 px-2 py-1 text-xs" onClick={() => setDetail(null)}>关闭</button>
+              <div className="flex gap-2">
+                <button
+                  className="rounded bg-red-500/70 px-2 py-1 text-xs hover:bg-red-500 disabled:opacity-50"
+                  onClick={() => rollbackVersion(detail.version)}
+                  disabled={rollbacking}
+                >
+                  {rollbacking ? "回滚中..." : "回滚到此版本"}
+                </button>
+                <button className="rounded bg-white/10 px-2 py-1 text-xs" onClick={() => setDetail(null)}>关闭</button>
+              </div>
             </div>
             <pre className="max-h-[60vh] overflow-auto rounded bg-black/40 p-2 text-xs text-green-200">{detail.raw}</pre>
           </div>
