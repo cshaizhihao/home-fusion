@@ -92,3 +92,7 @@ node scripts/import-imsyy-config.mjs \
   - 新增 `modules.weather / modules.music / modules.sliders`
   - 后台支持模块开关配置
   - 主页会按模块开关控制天气、背景音频、技能模块
+- 多环境配置基础版：
+  - 支持 `CONFIG_PROFILE=dev|staging|prod`
+  - 对应配置文件：`config.dev.json / config.staging.json / config.json`
+  - `/admin` 可查看当前环境与配置文件

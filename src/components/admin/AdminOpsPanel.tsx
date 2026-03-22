@@ -25,14 +25,16 @@ export function AdminOpsPanel() {
   const [diffInfo, setDiffInfo] = useState<{ latestVersion: string | null; changedKeys: string[]; summary: string } | null>(null);
   const [queueJobs, setQueueJobs] = useState<any[]>([]);
   const [healthItems, setHealthItems] = useState<any[]>([]);
+  const [envInfo, setEnvInfo] = useState<any>(null);
 
   const load = async () => {
     setLoading(true);
     try {
-      const [res1, res2, res3] = await Promise.all([
+      const [res1, res2, res3, res4] = await Promise.all([
         fetch("/api/admin/history", { cache: "no-store" }),
         fetch("/api/admin/upgrade-queue", { cache: "no-store" }),
         fetch("/api/admin/health", { cache: "no-store" }),
+        fetch("/api/admin/env", { cache: "no-store" }),
       ]);
       const json = await res1.json();
       if (json?.success) {
@@ -43,6 +45,8 @@ export function AdminOpsPanel() {
       if (q?.success) setQueueJobs(q.data || []);
       const h = await res3.json();
       if (h?.success) setHealthItems(h.data || []);
+      const e = await res4.json();
+      if (e?.success) setEnvInfo(e.data || null);
     } finally {
       setLoading(false);
     }
@@ -168,6 +172,14 @@ export function AdminOpsPanel() {
         <Card title="最近发布" value={lastPublish?.version || "暂无"} sub={lastPublish?.at ? new Date(lastPublish.at).toLocaleString() : "-"} />
         <Card title="当前状态" value={publishing ? "发布中" : loading ? "加载中" : "空闲"} />
       </div>
+
+      {envInfo && (
+        <div className="mb-3 rounded border border-cyan-300/30 bg-cyan-100/10 p-2 text-xs">
+          <div className="font-semibold">配置环境：{envInfo.profile}</div>
+          <div className="opacity-80">配置文件：{envInfo.fileName}</div>
+          <div className="opacity-70">支持环境：{(envInfo.supported || []).join(" / ")}</div>
+        </div>
+      )}
 
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-semibold">发布中心 / 版本记录 / 操作日志</h2>

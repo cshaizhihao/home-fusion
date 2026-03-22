@@ -19,8 +19,13 @@ export const CONFIG_DIR = process.env.CONFIG_DIR
 
 export const IS_DATABASE = !!process.env.PG_DATABASE_URL;
 
-const FILE_NAME = "config.json";
+const PROFILE = process.env.CONFIG_PROFILE || "prod";
+const FILE_NAME = PROFILE === "prod" ? "config.json" : `config.${PROFILE}.json`;
 const Service = new AppConfigService();
+
+export function getConfigProfile() {
+  return PROFILE;
+}
 
 export async function getConfig(throwError: boolean = false) {
   if (IS_DATABASE) {
@@ -35,6 +40,7 @@ export async function getConfig(throwError: boolean = false) {
     console.log(
       "Get File conifg:",
       configPath,
+      `profile=${PROFILE}`,
       dateFormat(new Date(), "YYYY-MM-DD HH:mm:ss")
     );
     if (existsSync(configPath)) {
