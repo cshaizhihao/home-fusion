@@ -141,7 +141,7 @@ export const Settings = ({
               title={
                 <span className="flex flex-nowrap items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-[var(--primary-color)]"></span>
-                  <span className="font-semibold">{title}</span>
+                  <span className="font-semibold text-white">{title}</span>
                 </span>
               }
             >

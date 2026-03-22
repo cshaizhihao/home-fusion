@@ -5,6 +5,7 @@ REPO_URL="https://github.com/cshaizhihao/home-fusion.git"
 BRANCH="main"
 APP_DIR="/opt/home-fusion"
 ENV_FILE="${APP_DIR}/.env"
+CONFIG_MOUNT_DIR="${APP_DIR}/config"
 CONTAINER_NAME="home-fusion-12379"
 IMAGE_NAME="home-fusion:latest"
 REMOTE_IMAGE="ghcr.io/cshaizhihao/home-fusion:main"
@@ -85,6 +86,21 @@ if ! need_cmd docker; then
   systemctl enable --now docker || true
 fi
 
+ensure_config_mount(){
+  mkdir -p "$CONFIG_MOUNT_DIR"
+
+  if [[ ! -f "$CONFIG_MOUNT_DIR/config.json" ]]; then
+    if [[ -f "$APP_DIR/src/config/config.json" ]]; then
+      cp "$APP_DIR/src/config/config.json" "$CONFIG_MOUNT_DIR/config.json"
+    else
+      curl -fsSL "https://raw.githubusercontent.com/cshaizhihao/home-fusion/main/src/config/config.json" -o "$CONFIG_MOUNT_DIR/config.json" || true
+    fi
+  fi
+
+  chmod -R 777 "$CONFIG_MOUNT_DIR" || true
+  log "配置目录已就绪：$CONFIG_MOUNT_DIR"
+}
+
 ensure_env_password
 
 # 优先拉取预构建镜像（最快）
@@ -117,10 +133,13 @@ if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
   docker rm -f "$CONTAINER_NAME" >/dev/null
 fi
 
+ensure_config_mount
+
 docker run -d \
   --name "$CONTAINER_NAME" \
   --restart unless-stopped \
   --env-file "$ENV_FILE" \
+  -v "$CONFIG_MOUNT_DIR:/remio-home/config" \
   -p "${HOST_PORT}:${CONTAINER_PORT}" \
   "$IMAGE_NAME" >/dev/null
 

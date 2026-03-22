@@ -31,7 +31,7 @@ export const Player = ({ size = 18, musicConfig }: { size?: number; musicConfig?
         style={{
           backgroundColor: "rgba(var(--mio-main), 0.15)",
         }}
-        className="fixed left-4 top-4 z-10 max-w-[340px] select-none rounded-md p-2 backdrop-blur"
+        className="fixed left-4 top-16 z-10 max-w-[340px] select-none rounded-md p-2 backdrop-blur"
       >
         {/** @ts-ignore */}
         <meting-js
