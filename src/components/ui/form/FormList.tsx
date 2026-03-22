@@ -108,7 +108,7 @@ export const FormList = ({
         subtitle={
           <span className="flex flex-nowrap items-center gap-2">
             <span className="h-4 w-1 rounded-full bg-[var(--primary-color)]"></span>
-            <span className="font-semibold text-white/70">{title}</span>
+            <span className="font-semibold text-white/95">{title}</span>
           </span>
         }
       >
