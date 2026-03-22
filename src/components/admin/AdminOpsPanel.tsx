@@ -21,6 +21,7 @@ export function AdminOpsPanel() {
   const [publishResult, setPublishResult] = useState<{ ok: boolean; message: string; version?: string } | null>(null);
   const [expandedLogKey, setExpandedLogKey] = useState<string | null>(null);
   const [detail, setDetail] = useState<{ version: string; raw: string } | null>(null);
+  const [diffInfo, setDiffInfo] = useState<{ latestVersion: string | null; changedKeys: string[]; summary: string } | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -73,6 +74,16 @@ export function AdminOpsPanel() {
     }
   };
 
+  const previewDiff = async () => {
+    const res = await fetch("/api/admin/diff", { cache: "no-store" });
+    const json = await res.json();
+    if (json?.success) {
+      setDiffInfo(json.data);
+    } else {
+      alert(`差异预览失败: ${json?.message || "unknown"}`);
+    }
+  };
+
   const filteredLogs = useMemo(() => (logFilter === "all" ? logs : logs.filter((l) => l.type === logFilter)), [logs, logFilter]);
   const totalPages = Math.max(1, Math.ceil(filteredLogs.length / PAGE_SIZE));
   const pagedLogs = useMemo(() => {
@@ -103,6 +114,8 @@ export function AdminOpsPanel() {
           <button onClick={publish} disabled={publishing} className="rounded bg-emerald-500/70 px-3 py-1 text-xs hover:bg-emerald-500 disabled:opacity-60">
             {publishing ? "发布中..." : "一键发布"}
           </button>
+          <button onClick={previewDiff} className="rounded bg-amber-500/70 px-3 py-1 text-xs hover:bg-amber-500">发布前差异预览</button>
+          <a href="/api/admin/logs/export" className="rounded bg-white/20 px-3 py-1 text-xs hover:bg-white/30">导出日志</a>
           <button onClick={load} className="rounded bg-white/20 px-3 py-1 text-xs hover:bg-white/30">刷新</button>
         </div>
       </div>
@@ -114,6 +127,14 @@ export function AdminOpsPanel() {
           </button>
         ))}
       </div>
+
+      {diffInfo && (
+        <div className="mb-3 rounded border border-amber-300/30 bg-amber-100/10 p-2 text-xs">
+          <div className="font-semibold">差异预览：{diffInfo.summary}</div>
+          <div className="opacity-80">对比基线：{diffInfo.latestVersion || "无"}</div>
+          <div className="mt-1 break-all">变更字段：{diffInfo.changedKeys?.length ? diffInfo.changedKeys.join(", ") : "无"}</div>
+        </div>
+      )}
 
       <div className="grid gap-3 md:grid-cols-2">
         <div>

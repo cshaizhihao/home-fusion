@@ -57,6 +57,24 @@ export function getHistoryDetail(version: string) {
   }
 }
 
+export function getLatestHistoryVersion() {
+  ensureAdminDirs();
+  const files = readdirSync(HISTORY_DIR)
+    .filter((f) => f.endsWith(".json"))
+    .map((f) => {
+      const p = join(HISTORY_DIR, f);
+      const stat = statSync(p);
+      return { file: f, version: f.replace(/\.json$/, ""), mtime: stat.mtime.getTime() };
+    })
+    .sort((a, b) => b.mtime - a.mtime);
+  return files[0]?.version || null;
+}
+
+export function exportLogsRaw() {
+  ensureAdminDirs();
+  return existsSync(LOG_FILE) ? readFileSync(LOG_FILE, "utf8") : "";
+}
+
 export function listHistory(limit = 20) {
   ensureAdminDirs();
   const files = readdirSync(HISTORY_DIR)
