@@ -28,6 +28,8 @@ export function AdminOpsPanel() {
   const [envInfo, setEnvInfo] = useState<any>(null);
   const [moduleCheck, setModuleCheck] = useState<any>(null);
   const [modulePresets, setModulePresets] = useState<any>(null);
+  const [cooldownUntil, setCooldownUntil] = useState<Record<string, number>>({});
+  const [nowMs, setNowMs] = useState(Date.now());
 
   const load = async () => {
     setLoading(true);
@@ -64,7 +66,20 @@ export function AdminOpsPanel() {
     load();
   }, []);
 
+  useEffect(() => {
+    const t = setInterval(() => setNowMs(Date.now()), 500);
+    return () => clearInterval(t);
+  }, []);
+
+  const inCooldown = (key: string) => (cooldownUntil[key] || 0) > nowMs;
+  const cooldownSec = (key: string) => Math.max(0, Math.ceil(((cooldownUntil[key] || 0) - nowMs) / 1000));
+  const startCooldown = (key: string, sec = 5) => setCooldownUntil((prev) => ({ ...prev, [key]: Date.now() + sec * 1000 }));
+
   const publish = async () => {
+    if (!window.confirm("确认执行发布？该操作会生成新快照版本。")) return;
+    if (inCooldown("publish")) return;
+    startCooldown("publish", 6);
+
     const remark = (remarkDraft || "manual publish").trim() || "manual publish";
     setPublishing(true);
     try {
@@ -99,6 +114,8 @@ export function AdminOpsPanel() {
 
   const rollbackVersion = async (version: string) => {
     if (!window.confirm(`确认回滚到版本 ${version} ?`)) return;
+    if (inCooldown("rollback")) return;
+    startCooldown("rollback", 8);
     setRollbacking(true);
     try {
       const res = await fetch("/api/admin/rollback", {
@@ -130,6 +147,10 @@ export function AdminOpsPanel() {
   };
 
   const enqueueUpgradeJob = async () => {
+    if (!window.confirm("确认添加升级任务到队列？")) return;
+    if (inCooldown("upgrade_enqueue")) return;
+    startCooldown("upgrade_enqueue", 4);
+
     const res = await fetch("/api/admin/upgrade-queue", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -141,6 +162,10 @@ export function AdminOpsPanel() {
   };
 
   const runNextJob = async () => {
+    if (!window.confirm("确认立即执行下一个升级任务？")) return;
+    if (inCooldown("upgrade_run")) return;
+    startCooldown("upgrade_run", 8);
+
     const res = await fetch("/api/admin/upgrade-queue", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -240,8 +265,8 @@ export function AdminOpsPanel() {
         <h2 className="text-sm font-semibold">发布中心 / 版本记录 / 操作日志</h2>
         <div className="flex flex-wrap gap-2">
           <input value={remarkDraft} onChange={(e) => setRemarkDraft(e.target.value)} placeholder="发布备注" className="rounded bg-white/10 px-2 py-1 text-xs" />
-          <button onClick={publish} disabled={publishing} className="rounded bg-emerald-500/70 px-3 py-1 text-xs hover:bg-emerald-500 disabled:opacity-60">
-            {publishing ? "发布中..." : "一键发布"}
+          <button onClick={publish} disabled={publishing || inCooldown("publish")} className="rounded bg-emerald-500/70 px-3 py-1 text-xs hover:bg-emerald-500 disabled:opacity-60">
+            {publishing ? "发布中..." : inCooldown("publish") ? `发布冷却(${cooldownSec("publish")}s)` : "一键发布"}
           </button>
           <button onClick={previewDiff} className="rounded bg-amber-500/70 px-3 py-1 text-xs hover:bg-amber-500">发布前差异预览</button>
           <a href="/api/admin/logs/export" className="rounded bg-white/20 px-3 py-1 text-xs hover:bg-white/30">导出日志</a>
@@ -325,8 +350,8 @@ export function AdminOpsPanel() {
         <div className="mb-2 flex items-center justify-between">
           <div className="font-semibold">升级任务队列（v0.5 MVP）</div>
           <div className="flex gap-2">
-            <button onClick={enqueueUpgradeJob} className="rounded bg-indigo-500/70 px-2 py-1 hover:bg-indigo-500">添加升级任务</button>
-            <button onClick={runNextJob} className="rounded bg-emerald-500/70 px-2 py-1 hover:bg-emerald-500">执行下一个</button>
+            <button onClick={enqueueUpgradeJob} disabled={inCooldown("upgrade_enqueue")} className="rounded bg-indigo-500/70 px-2 py-1 hover:bg-indigo-500 disabled:opacity-60">{inCooldown("upgrade_enqueue") ? `冷却(${cooldownSec("upgrade_enqueue")}s)` : "添加升级任务"}</button>
+            <button onClick={runNextJob} disabled={inCooldown("upgrade_run")} className="rounded bg-emerald-500/70 px-2 py-1 hover:bg-emerald-500 disabled:opacity-60">{inCooldown("upgrade_run") ? `冷却(${cooldownSec("upgrade_run")}s)` : "执行下一个"}</button>
           </div>
         </div>
         <div className="max-h-40 overflow-auto rounded bg-black/40 p-2">
@@ -372,9 +397,9 @@ export function AdminOpsPanel() {
                 <button
                   className="rounded bg-red-500/70 px-2 py-1 text-xs hover:bg-red-500 disabled:opacity-50"
                   onClick={() => rollbackVersion(detail.version)}
-                  disabled={rollbacking}
+                  disabled={rollbacking || inCooldown("rollback")}
                 >
-                  {rollbacking ? "回滚中..." : "回滚到此版本"}
+                  {rollbacking ? "回滚中..." : inCooldown("rollback") ? `回滚冷却(${cooldownSec("rollback")}s)` : "回滚到此版本"}
                 </button>
                 <button className="rounded bg-white/10 px-2 py-1 text-xs" onClick={() => setDetail(null)}>关闭</button>
               </div>
