@@ -111,6 +111,12 @@ export function UpdateCenter() {
                 </div>
 
                 <div className="mt-3 flex flex-wrap gap-2">
+                  <a
+                    href="/admin"
+                    className="rounded-md bg-indigo-500/70 px-3 py-1 text-xs hover:bg-indigo-500"
+                  >
+                    打开控制台
+                  </a>
                   <button
                     onClick={handleUpgrade}
                     disabled={upgrading}

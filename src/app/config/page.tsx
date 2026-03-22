@@ -10,18 +10,14 @@ import { Settings } from "@/components/settings/Settings";
 import { Loader } from "@/components/ui/loader/Loader";
 import { Verify } from "@/components/verify/Verify";
 import { getConfig, mergeConfig, transformConfig } from "@/lib/config";
+import { isAuthorizedByCookie } from "@/lib/auth";
 import { toHsl } from "@kasuie/utils";
 import { Suspense } from "react";
 
 export const revalidate = 0;
 
-export default async function Config({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
-  const verify = Object.hasOwn(searchParams, "verify");
-
+export default async function Config() {
+  const authorized = isAuthorizedByCookie();
   const appConfig = await getConfig();
 
   const { bgConfig, primaryColor } = transformConfig(appConfig);
@@ -44,7 +40,7 @@ export default async function Config({
         style={style}
         className="relative z-[1] flex h-screen w-full items-center justify-center"
       >
-        {!verify ? <Settings config={mergeConfig(appConfig)} /> : <Verify />}
+        {authorized ? <Settings config={mergeConfig(appConfig)} /> : <Verify />}
       </div>
       <MainEffect
         bgArr={bgConfig.bgs}

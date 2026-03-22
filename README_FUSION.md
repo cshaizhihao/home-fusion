@@ -45,9 +45,9 @@ node scripts/import-imsyy-config.mjs \
   ./config/home-imsyy-migrated.json
 ```
 
-## 下一步融合计划
+## 迭代路线（固定）
 
-- [ ] 接入 imsyy 的 APlayer/Meting 组件
-- [ ] 增加“时光进度条”组件
-- [ ] 增强图标映射（imsyy icon -> remio icon）
-- [ ] 增加主题包（imsyy-style / remio-style 可切换）
+- [ ] v0.3.x：升级中心完善 + imsyy 音乐/时光进度条
+- [x] v0.4.x（MVP 起步）：`/admin` 控制台入口 + 鉴权后编辑
+- [ ] v0.5.x：运维能力（任务队列 / 回滚 / 健康检查）
+- [ ] v0.6.x：强融合版（多主题 / 插件化 / 多环境）
