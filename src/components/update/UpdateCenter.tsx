@@ -16,6 +16,8 @@ export function UpdateCenter() {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<UpdateInfo | null>(null);
   const [copied, setCopied] = useState(false);
+  const [upgrading, setUpgrading] = useState(false);
+  const [upgradeLog, setUpgradeLog] = useState<string>("");
 
   const fetchInfo = async () => {
     setLoading(true);
@@ -37,6 +39,30 @@ export function UpdateCenter() {
     await navigator.clipboard.writeText(data.upgradeCommand);
     setCopied(true);
     setTimeout(() => setCopied(false), 1200);
+  };
+
+  const handleUpgrade = async () => {
+    setUpgrading(true);
+    setUpgradeLog("正在触发升级，请稍候...");
+    try {
+      const token = window.prompt("输入升级令牌（如未设置可留空）", "") || "";
+      const res = await fetch("/api/update/upgrade", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+      const json = await res.json();
+      if (!json?.ok) {
+        setUpgradeLog(`升级失败：${json?.message || "未知错误"}\n\n${json?.output || ""}`);
+      } else {
+        setUpgradeLog(`升级命令已执行。\n\n${json?.output || ""}`);
+        await fetchInfo();
+      }
+    } catch (e: any) {
+      setUpgradeLog(`升级失败：${e?.message || "网络错误"}`);
+    } finally {
+      setUpgrading(false);
+    }
   };
 
   return (
@@ -84,12 +110,19 @@ export function UpdateCenter() {
                   {data?.upgradeCommand}
                 </div>
 
-                <div className="mt-3 flex gap-2">
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    onClick={handleUpgrade}
+                    disabled={upgrading}
+                    className="rounded-md bg-emerald-500/70 px-3 py-1 text-xs hover:bg-emerald-500 disabled:opacity-60"
+                  >
+                    {upgrading ? "升级中..." : "一键升级（服务端执行）"}
+                  </button>
                   <button
                     onClick={handleCopy}
                     className="rounded-md bg-white/20 px-3 py-1 text-xs hover:bg-white/30"
                   >
-                    {copied ? "已复制" : "一键复制升级命令"}
+                    {copied ? "已复制" : "复制升级命令"}
                   </button>
                   <button
                     onClick={fetchInfo}
@@ -98,6 +131,12 @@ export function UpdateCenter() {
                     刷新状态
                   </button>
                 </div>
+
+                {upgradeLog && (
+                  <pre className="mt-3 max-h-40 overflow-auto whitespace-pre-wrap rounded-md bg-black/40 p-2 text-xs text-emerald-200">
+                    {upgradeLog}
+                  </pre>
+                )}
               </div>
             )}
           </div>
