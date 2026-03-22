@@ -6,13 +6,13 @@ import { getHistoryDetail, getLatestHistoryVersion } from "@/lib/adminOps";
 export const revalidate = 0;
 
 function diffTopLevel(prev: Record<string, any>, curr: Record<string, any>) {
-  const keys = new Set([...Object.keys(prev || {}), ...Object.keys(curr || {})]);
+  const keySet = new Set([...Object.keys(prev || {}), ...Object.keys(curr || {})]);
   const changed: string[] = [];
-  for (const k of keys) {
+  Array.from(keySet).forEach((k) => {
     const a = JSON.stringify(prev?.[k]);
     const b = JSON.stringify(curr?.[k]);
     if (a !== b) changed.push(k);
-  }
+  });
   return changed;
 }
 
