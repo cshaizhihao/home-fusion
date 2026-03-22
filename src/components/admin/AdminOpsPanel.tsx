@@ -22,16 +22,22 @@ export function AdminOpsPanel() {
   const [expandedLogKey, setExpandedLogKey] = useState<string | null>(null);
   const [detail, setDetail] = useState<{ version: string; raw: string } | null>(null);
   const [diffInfo, setDiffInfo] = useState<{ latestVersion: string | null; changedKeys: string[]; summary: string } | null>(null);
+  const [queueJobs, setQueueJobs] = useState<any[]>([]);
 
   const load = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/history", { cache: "no-store" });
-      const json = await res.json();
+      const [res1, res2] = await Promise.all([
+        fetch("/api/admin/history", { cache: "no-store" }),
+        fetch("/api/admin/upgrade-queue", { cache: "no-store" }),
+      ]);
+      const json = await res1.json();
       if (json?.success) {
         setHistory(json.data.files || []);
         setLogs(json.data.logs || []);
       }
+      const q = await res2.json();
+      if (q?.success) setQueueJobs(q.data || []);
     } finally {
       setLoading(false);
     }
@@ -82,6 +88,28 @@ export function AdminOpsPanel() {
     } else {
       alert(`差异预览失败: ${json?.message || "unknown"}`);
     }
+  };
+
+  const enqueueUpgradeJob = async () => {
+    const res = await fetch("/api/admin/upgrade-queue", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "enqueue" }),
+    });
+    const json = await res.json();
+    if (!json?.success) alert(`入队失败: ${json?.message || "unknown"}`);
+    await load();
+  };
+
+  const runNextJob = async () => {
+    const res = await fetch("/api/admin/upgrade-queue", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "run-next" }),
+    });
+    const json = await res.json();
+    if (!json?.success) alert(`执行失败: ${json?.message || "unknown"}`);
+    await load();
   };
 
   const filteredLogs = useMemo(() => (logFilter === "all" ? logs : logs.filter((l) => l.type === logFilter)), [logs, logFilter]);
@@ -188,6 +216,25 @@ export function AdminOpsPanel() {
               <button disabled={logPage >= totalPages} onClick={() => setLogPage((p) => Math.min(totalPages, p + 1))} className="rounded bg-white/10 px-2 py-1 disabled:opacity-40">下一页</button>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded border border-white/15 bg-black/30 p-3 text-xs">
+        <div className="mb-2 flex items-center justify-between">
+          <div className="font-semibold">升级任务队列（v0.5 MVP）</div>
+          <div className="flex gap-2">
+            <button onClick={enqueueUpgradeJob} className="rounded bg-indigo-500/70 px-2 py-1 hover:bg-indigo-500">添加升级任务</button>
+            <button onClick={runNextJob} className="rounded bg-emerald-500/70 px-2 py-1 hover:bg-emerald-500">执行下一个</button>
+          </div>
+        </div>
+        <div className="max-h-40 overflow-auto rounded bg-black/40 p-2">
+          {queueJobs.length ? queueJobs.map((j) => (
+            <div key={j.id} className="mb-2 border-b border-white/10 pb-1 last:mb-0 last:border-0">
+              <div>ID {j.id} · {j.status}</div>
+              <div className="opacity-70">{new Date(j.createdAt).toLocaleString()}</div>
+              {j.output ? <div className="mt-1 opacity-80 line-clamp-2">{j.output}</div> : null}
+            </div>
+          )) : <div className="opacity-70">暂无任务</div>}
         </div>
       </div>
 

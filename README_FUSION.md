@@ -54,6 +54,13 @@ node scripts/import-imsyy-config.mjs \
 - [x] v0.4.x（MVP 起步）：`/admin` 控制台入口 + 鉴权后编辑
 - [ ] v0.5.x：运维能力（任务队列 / 回滚 / 健康检查）
 
+### v0.5.x 最新进展（MVP）
+
+- `/admin` 新增升级任务队列面板：
+  - 添加升级任务
+  - 执行下一个任务
+  - 查看任务状态与输出（pending/running/success/failed）
+
 ### v0.4.x 最新进展
 
 - `/admin` 已支持：
