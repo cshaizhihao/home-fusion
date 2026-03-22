@@ -7,12 +7,28 @@ type Log = { type: string; at: string; version?: string; remark?: string };
 
 type FilterType = "all" | "publish" | "save";
 
+const REMARK_TEMPLATES = [
+  "配置微调",
+  "主题样式更新",
+  "链接内容更新",
+  "发布前备份",
+];
+
+const PAGE_SIZE = 8;
+
 export function AdminOpsPanel() {
   const [history, setHistory] = useState<Item[]>([]);
   const [logs, setLogs] = useState<Log[]>([]);
   const [loading, setLoading] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [logFilter, setLogFilter] = useState<FilterType>("all");
+  const [logPage, setLogPage] = useState(1);
+  const [remarkDraft, setRemarkDraft] = useState(REMARK_TEMPLATES[0]);
+  const [publishResult, setPublishResult] = useState<{
+    ok: boolean;
+    message: string;
+    version?: string;
+  } | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -33,7 +49,7 @@ export function AdminOpsPanel() {
   }, []);
 
   const publish = async () => {
-    const remark = window.prompt("发布备注", "manual publish") || "manual publish";
+    const remark = (remarkDraft || "manual publish").trim() || "manual publish";
     setPublishing(true);
     try {
       const res = await fetch("/api/admin/publish", {
@@ -43,20 +59,36 @@ export function AdminOpsPanel() {
       });
       const json = await res.json();
       if (json?.success) {
-        alert(`发布成功: ${json.data.version}`);
+        setPublishResult({ ok: true, message: "发布成功", version: json?.data?.version });
         await load();
       } else {
-        alert(`发布失败: ${json?.message || "unknown"}`);
+        setPublishResult({ ok: false, message: `发布失败: ${json?.message || "unknown"}` });
       }
+    } catch (e: any) {
+      setPublishResult({ ok: false, message: `发布失败: ${e?.message || "network error"}` });
     } finally {
       setPublishing(false);
     }
   };
 
   const filteredLogs = useMemo(() => {
-    if (logFilter === "all") return logs;
-    return logs.filter((l) => l.type === logFilter);
+    const list = logFilter === "all" ? logs : logs.filter((l) => l.type === logFilter);
+    return list;
   }, [logs, logFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredLogs.length / PAGE_SIZE));
+  const pagedLogs = useMemo(() => {
+    const start = (logPage - 1) * PAGE_SIZE;
+    return filteredLogs.slice(start, start + PAGE_SIZE);
+  }, [filteredLogs, logPage]);
+
+  useEffect(() => {
+    setLogPage(1);
+  }, [logFilter]);
+
+  useEffect(() => {
+    if (logPage > totalPages) setLogPage(totalPages);
+  }, [totalPages, logPage]);
 
   const lastPublish = useMemo(
     () => logs.find((l) => l.type === "publish") || null,
@@ -76,9 +108,15 @@ export function AdminOpsPanel() {
         <Card title="当前状态" value={publishing ? "发布中" : loading ? "加载中" : "空闲"} />
       </div>
 
-      <div className="mb-3 flex items-center justify-between">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-semibold">发布中心 / 版本记录 / 操作日志</h2>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <input
+            value={remarkDraft}
+            onChange={(e) => setRemarkDraft(e.target.value)}
+            placeholder="发布备注"
+            className="rounded bg-white/10 px-2 py-1 text-xs"
+          />
           <button
             onClick={publish}
             disabled={publishing}
@@ -90,6 +128,18 @@ export function AdminOpsPanel() {
             刷新
           </button>
         </div>
+      </div>
+
+      <div className="mb-3 flex flex-wrap gap-2 text-xs">
+        {REMARK_TEMPLATES.map((tpl) => (
+          <button
+            key={tpl}
+            onClick={() => setRemarkDraft(tpl)}
+            className={`rounded px-2 py-1 ${remarkDraft === tpl ? "bg-indigo-500/70" : "bg-white/10 hover:bg-white/20"}`}
+          >
+            {tpl}
+          </button>
+        ))}
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
@@ -123,8 +173,8 @@ export function AdminOpsPanel() {
             </select>
           </div>
           <div className="max-h-52 overflow-auto rounded bg-black/30 p-2 text-xs">
-            {filteredLogs.length ? (
-              filteredLogs.map((l, idx) => (
+            {pagedLogs.length ? (
+              pagedLogs.map((l, idx) => (
                 <div key={`${l.at}-${idx}`} className="mb-2 border-b border-white/10 pb-1 last:mb-0 last:border-0">
                   <div>
                     <span className="inline-block rounded bg-white/10 px-1 py-[1px] mr-1">{l.type}</span>
@@ -139,8 +189,37 @@ export function AdminOpsPanel() {
               <div className="opacity-70">暂无日志</div>
             )}
           </div>
+          <div className="mt-2 flex items-center justify-between text-xs opacity-80">
+            <span>第 {logPage}/{totalPages} 页</span>
+            <div className="flex gap-2">
+              <button
+                disabled={logPage <= 1}
+                onClick={() => setLogPage((p) => Math.max(1, p - 1))}
+                className="rounded bg-white/10 px-2 py-1 disabled:opacity-40"
+              >
+                上一页
+              </button>
+              <button
+                disabled={logPage >= totalPages}
+                onClick={() => setLogPage((p) => Math.min(totalPages, p + 1))}
+                className="rounded bg-white/10 px-2 py-1 disabled:opacity-40"
+              >
+                下一页
+              </button>
+            </div>
+          </div>
         </div>
       </div>
+
+      {publishResult && (
+        <div className="mt-4 rounded border border-white/15 bg-black/30 p-3 text-xs">
+          <div className={`font-semibold ${publishResult.ok ? "text-emerald-300" : "text-red-300"}`}>
+            {publishResult.ok ? "发布成功" : "发布失败"}
+          </div>
+          <div className="mt-1 opacity-90">{publishResult.message}</div>
+          {publishResult.version ? <div className="mt-1 font-mono">版本：{publishResult.version}</div> : null}
+        </div>
+      )}
     </section>
   );
 }
