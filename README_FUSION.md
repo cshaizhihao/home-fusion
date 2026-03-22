@@ -131,3 +131,6 @@ node scripts/import-imsyy-config.mjs \
 - CI 可视化增强：
   - `/admin` 直接展示 GHCR 工作流最近 5 次构建状态
   - 点击可跳转 GitHub Actions 详情
+- 升级队列增强：
+  - 失败自动重试（最多 2 次）
+  - 失败原因分类（network/permission/timeout/unknown）

@@ -381,7 +381,8 @@ export function AdminOpsPanel() {
           {queueJobs.length ? queueJobs.map((j) => (
             <div key={j.id} className="mb-2 border-b border-white/10 pb-1 last:mb-0 last:border-0">
               <div>ID {j.id} · {j.status}</div>
-              <div className="opacity-70">{new Date(j.createdAt).toLocaleString()}</div>
+              <div className="opacity-70">{new Date(j.createdAt).toLocaleString()} · 尝试 {j.attempts || 0}/{j.maxAttempts || 2}</div>
+              {j.errorType ? <div className="text-amber-300">错误分类：{j.errorType}</div> : null}
               {j.output ? <div className="mt-1 opacity-80 line-clamp-2">{j.output}</div> : null}
             </div>
           )) : <div className="opacity-70">暂无任务</div>}
