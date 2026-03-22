@@ -65,7 +65,7 @@ export default async function Home() {
         </Loader>
       }
     >
-      {modules?.weather !== false && globalStyle?.weather && <Weather size={18} />}
+      {modules?.weather !== false && <Weather size={18} />}
       {modules?.music !== false && <Player size={18} musicConfig={musicConfig as any} />}
       {modules?.timeProgress !== false && <YearProgress />}
       <UpdateCenter />

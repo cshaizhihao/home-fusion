@@ -11,7 +11,7 @@ export default async function AdminPage() {
   const appConfig = await getConfig();
 
   return (
-    <main className="min-h-screen bg-[#0b0d12] p-4 text-white md:p-8">
+    <main className="admin-console min-h-screen bg-[#0b0d12] p-4 text-white md:p-8">
       <section className="mx-auto max-w-6xl">
         <div className="mb-4 flex items-center justify-between">
           <h1 className="text-xl font-semibold">Home Fusion 控制台</h1>

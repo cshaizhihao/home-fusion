@@ -47,6 +47,28 @@ body.fusion-imsyy .rounded-xl {
   border-radius: var(--fusion-card-radius) !important;
 }
 
+/* admin contrast hardening */
+.admin-console,
+.admin-console * {
+  color: #e8eeff;
+}
+.admin-console .text-white\/70,
+.admin-console .text-white\/60,
+.admin-console .text-white\/50 {
+  color: #c9d6ff !important;
+}
+.admin-console input,
+.admin-console textarea,
+.admin-console select {
+  color: #f4f7ff !important;
+  background: rgba(8, 14, 28, 0.75) !important;
+  border-color: rgba(130, 170, 255, 0.35) !important;
+}
+.admin-console input::placeholder,
+.admin-console textarea::placeholder {
+  color: rgba(226, 236, 255, 0.58) !important;
+}
+
 .mio-hidden {
   opacity: 0 !important;
   transition: all ease-in-out 0.3s;

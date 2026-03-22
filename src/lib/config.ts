@@ -181,7 +181,7 @@ export const transformConfig = (appConfig: AppConfig) => {
     modules,
     sliders: {
       ...(others as any)?.sliders,
-      hidden: modules?.sliders === false ? true : (others as any)?.sliders?.hidden,
+      hidden: modules?.sliders === false ? true : false,
     },
     bgConfig: {
       ...bgConfig,
