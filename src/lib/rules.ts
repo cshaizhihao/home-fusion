@@ -606,6 +606,21 @@ const slidersRules: RuleItem[] = [
   },
 ];
 
+const modulesRules: RuleItem[] = [
+  {
+    controlKey: "checkbox",
+    field: "$boolean",
+    isRequired: false,
+    label: "模块开关",
+    items: [
+      { label: "天气模块", value: "weather" },
+      { label: "音乐模块（背景音频）", value: "music" },
+      { label: "技能模块（Sliders）", value: "sliders" },
+    ],
+    default: ["weather", "music", "sliders"],
+  },
+];
+
 const resourcesRules: RuleItem[] = [
   {
     field: "css",
@@ -660,6 +675,7 @@ export const AppRules = [
   { title: "标题设置", rules: subTitleRules, field: "subTitleConfig" },
   { title: "社媒设置", rules: socialRules, field: "socialConfig" },
   { title: "技能设置", rules: slidersRules, field: "sliders" },
+  { title: "模块设置", rules: modulesRules, field: "modules" },
   { title: "资源设置", rules: resourcesRules, field: "resources" },
 ];
 
@@ -820,6 +836,11 @@ export const defaultAppConfig: AppConfig = {
     ICP: "ICP备xxxxxxxx号",
     direction: "col-reverse",
     isExternal: true,
+  },
+  modules: {
+    weather: true,
+    music: true,
+    sliders: true,
   },
   resources: {
     css: [],

@@ -40,6 +40,7 @@ export default async function Home() {
     globalStyle,
     resources,
     footers,
+    modules,
     ...others
   } = transformConfig(await getConfig());
 
@@ -61,7 +62,7 @@ export default async function Home() {
         </Loader>
       }
     >
-      {globalStyle?.weather && <Weather size={18} />}
+      {modules?.weather !== false && globalStyle?.weather && <Weather size={18} />}
       <UpdateCenter />
       {renderMain({
         ...others,

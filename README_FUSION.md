@@ -88,3 +88,7 @@ node scripts/import-imsyy-config.mjs \
 - 多主题引擎基础版：
   - `globalStyle.fusionTheme` 支持 `remio | imsyy`
   - 根据主题切换全局视觉风格（卡片圆角 / 阴影）
+- 组件插件化开关（第一版）：
+  - 新增 `modules.weather / modules.music / modules.sliders`
+  - 后台支持模块开关配置
+  - 主页会按模块开关控制天气、背景音频、技能模块

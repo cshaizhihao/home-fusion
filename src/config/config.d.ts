@@ -150,6 +150,12 @@ interface Resources {
   bodyHtml?: string;
 }
 
+interface ModulesConfig {
+  weather?: boolean;
+  music?: boolean;
+  sliders?: boolean;
+}
+
 export interface AppConfig {
   name: string; // 站点标题
   favicon?: string; // 站点图标
@@ -169,4 +175,5 @@ export interface AppConfig {
   sitesConfig?: SitesConfig; // sites 渲染组件配置项
   sliders?: SlidersConfig;
   resources?: Resources;
+  modules?: ModulesConfig;
 }

@@ -93,6 +93,7 @@ export const transformConfig = (appConfig: AppConfig) => {
     bgConfig,
     globalStyle,
     footer,
+    modules = { weather: true, music: true, sliders: true },
     ...others
   } = appConfig;
 
@@ -150,7 +151,17 @@ export const transformConfig = (appConfig: AppConfig) => {
     ...others,
     footers,
     footer,
-    bgConfig: { ...bgConfig, bgs, mbgs },
+    modules,
+    sliders: {
+      ...(others as any)?.sliders,
+      hidden: modules?.sliders === false ? true : (others as any)?.sliders?.hidden,
+    },
+    bgConfig: {
+      ...bgConfig,
+      audio: modules?.music === false ? "" : bgConfig?.audio,
+      bgs,
+      mbgs,
+    },
     sitesConfig,
     primaryColor,
     globalStyle,

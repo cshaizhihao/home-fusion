@@ -34,6 +34,11 @@
     "style": "",
     "istTransition": true
   },
+  "modules": {
+    "weather": true,
+    "music": true,
+    "sliders": true
+  },
   "subTitle": "https://v1.hitokoto.cn?c=a&c=b&c=c",
   "subTitleConfig": {
     "typing": true,
