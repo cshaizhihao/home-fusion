@@ -110,3 +110,9 @@ node scripts/import-imsyy-config.mjs \
   - 模块预设一键切换：`Personal / Minimal / Showcase`
   - 新增接口：`/api/admin/modules/preset`
   - `/admin` 可直接应用预设并刷新校验结果
+
+### 控制台体验打磨（持续）
+
+- `/admin` 信息架构升级为 Tab 结构：
+  - 运维面板（发布/升级队列/回滚/健康）
+  - 配置编辑（原 Settings）

@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { Verify } from "@/components/verify/Verify";
-import { Settings } from "@/components/settings/Settings";
 import { getConfig, mergeConfig } from "@/lib/config";
 import { isAuthorizedByCookie } from "@/lib/auth";
-import { AdminOpsPanel } from "@/components/admin/AdminOpsPanel";
+import { AdminConsole } from "@/components/admin/AdminConsole";
 
 export const revalidate = 0;
 
@@ -15,7 +14,7 @@ export default async function AdminPage() {
     <main className="min-h-screen bg-[#0b0d12] p-4 text-white md:p-8">
       <section className="mx-auto max-w-6xl">
         <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Home Fusion 控制台（MVP）</h1>
+          <h1 className="text-xl font-semibold">Home Fusion 控制台</h1>
           <div className="flex gap-2 text-xs">
             <Link href="/" className="rounded bg-white/10 px-3 py-1 hover:bg-white/20">返回主页</Link>
             <Link href="/config" className="rounded bg-white/10 px-3 py-1 hover:bg-white/20">配置页</Link>
@@ -27,10 +26,7 @@ export default async function AdminPage() {
         </div>
 
         {authorized ? (
-          <>
-            <AdminOpsPanel />
-            <Settings config={mergeConfig(appConfig)} />
-          </>
+          <AdminConsole config={mergeConfig(appConfig)} />
         ) : (
           <div className="pt-8">
             <Verify />
