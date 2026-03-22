@@ -7,13 +7,7 @@ type Log = { type: string; at: string; version?: string; remark?: string };
 
 type FilterType = "all" | "publish" | "save";
 
-const REMARK_TEMPLATES = [
-  "配置微调",
-  "主题样式更新",
-  "链接内容更新",
-  "发布前备份",
-];
-
+const REMARK_TEMPLATES = ["配置微调", "主题样式更新", "链接内容更新", "发布前备份"];
 const PAGE_SIZE = 8;
 
 export function AdminOpsPanel() {
@@ -24,11 +18,9 @@ export function AdminOpsPanel() {
   const [logFilter, setLogFilter] = useState<FilterType>("all");
   const [logPage, setLogPage] = useState(1);
   const [remarkDraft, setRemarkDraft] = useState(REMARK_TEMPLATES[0]);
-  const [publishResult, setPublishResult] = useState<{
-    ok: boolean;
-    message: string;
-    version?: string;
-  } | null>(null);
+  const [publishResult, setPublishResult] = useState<{ ok: boolean; message: string; version?: string } | null>(null);
+  const [expandedLogKey, setExpandedLogKey] = useState<string | null>(null);
+  const [detail, setDetail] = useState<{ version: string; raw: string } | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -71,72 +63,53 @@ export function AdminOpsPanel() {
     }
   };
 
-  const filteredLogs = useMemo(() => {
-    const list = logFilter === "all" ? logs : logs.filter((l) => l.type === logFilter);
-    return list;
-  }, [logs, logFilter]);
+  const openDetail = async (version: string) => {
+    const res = await fetch(`/api/admin/history/${encodeURIComponent(version)}`, { cache: "no-store" });
+    const json = await res.json();
+    if (json?.success) {
+      setDetail({ version, raw: json.data.raw });
+    } else {
+      alert(`加载版本详情失败: ${json?.message || "unknown"}`);
+    }
+  };
 
+  const filteredLogs = useMemo(() => (logFilter === "all" ? logs : logs.filter((l) => l.type === logFilter)), [logs, logFilter]);
   const totalPages = Math.max(1, Math.ceil(filteredLogs.length / PAGE_SIZE));
   const pagedLogs = useMemo(() => {
     const start = (logPage - 1) * PAGE_SIZE;
     return filteredLogs.slice(start, start + PAGE_SIZE);
   }, [filteredLogs, logPage]);
 
-  useEffect(() => {
-    setLogPage(1);
-  }, [logFilter]);
-
+  useEffect(() => setLogPage(1), [logFilter]);
   useEffect(() => {
     if (logPage > totalPages) setLogPage(totalPages);
   }, [totalPages, logPage]);
 
-  const lastPublish = useMemo(
-    () => logs.find((l) => l.type === "publish") || null,
-    [logs]
-  );
+  const lastPublish = useMemo(() => logs.find((l) => l.type === "publish") || null, [logs]);
 
   return (
     <section className="mb-4 rounded border border-white/15 bg-white/5 p-4">
       <div className="mb-4 grid gap-2 md:grid-cols-4">
         <Card title="发布版本数" value={String(history.length)} />
         <Card title="日志条数" value={String(logs.length)} />
-        <Card
-          title="最近发布"
-          value={lastPublish?.version || "暂无"}
-          sub={lastPublish?.at ? new Date(lastPublish.at).toLocaleString() : "-"}
-        />
+        <Card title="最近发布" value={lastPublish?.version || "暂无"} sub={lastPublish?.at ? new Date(lastPublish.at).toLocaleString() : "-"} />
         <Card title="当前状态" value={publishing ? "发布中" : loading ? "加载中" : "空闲"} />
       </div>
 
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-semibold">发布中心 / 版本记录 / 操作日志</h2>
         <div className="flex flex-wrap gap-2">
-          <input
-            value={remarkDraft}
-            onChange={(e) => setRemarkDraft(e.target.value)}
-            placeholder="发布备注"
-            className="rounded bg-white/10 px-2 py-1 text-xs"
-          />
-          <button
-            onClick={publish}
-            disabled={publishing}
-            className="rounded bg-emerald-500/70 px-3 py-1 text-xs hover:bg-emerald-500 disabled:opacity-60"
-          >
+          <input value={remarkDraft} onChange={(e) => setRemarkDraft(e.target.value)} placeholder="发布备注" className="rounded bg-white/10 px-2 py-1 text-xs" />
+          <button onClick={publish} disabled={publishing} className="rounded bg-emerald-500/70 px-3 py-1 text-xs hover:bg-emerald-500 disabled:opacity-60">
             {publishing ? "发布中..." : "一键发布"}
           </button>
-          <button onClick={load} className="rounded bg-white/20 px-3 py-1 text-xs hover:bg-white/30">
-            刷新
-          </button>
+          <button onClick={load} className="rounded bg-white/20 px-3 py-1 text-xs hover:bg-white/30">刷新</button>
         </div>
       </div>
 
       <div className="mb-3 flex flex-wrap gap-2 text-xs">
         {REMARK_TEMPLATES.map((tpl) => (
-          <button
-            key={tpl}
-            onClick={() => setRemarkDraft(tpl)}
-            className={`rounded px-2 py-1 ${remarkDraft === tpl ? "bg-indigo-500/70" : "bg-white/10 hover:bg-white/20"}`}
-          >
+          <button key={tpl} onClick={() => setRemarkDraft(tpl)} className={`rounded px-2 py-1 ${remarkDraft === tpl ? "bg-indigo-500/70" : "bg-white/10 hover:bg-white/20"}`}>
             {tpl}
           </button>
         ))}
@@ -144,68 +117,54 @@ export function AdminOpsPanel() {
 
       <div className="grid gap-3 md:grid-cols-2">
         <div>
-          <p className="mb-2 text-xs font-semibold opacity-80">版本记录</p>
+          <p className="mb-2 text-xs font-semibold opacity-80">版本记录（点击查看详情）</p>
           <div className="max-h-52 overflow-auto rounded bg-black/30 p-2 text-xs">
-            {history.length ? (
-              history.map((v) => (
-                <div key={v.version} className="mb-2 border-b border-white/10 pb-1 last:mb-0 last:border-0">
-                  <div className="font-mono">{v.version}</div>
-                  <div className="opacity-70">{new Date(v.mtime).toLocaleString()}</div>
-                </div>
-              ))
-            ) : (
-              <div className="opacity-70">暂无发布记录</div>
-            )}
+            {history.length ? history.map((v) => (
+              <button key={v.version} onClick={() => openDetail(v.version)} className="mb-2 block w-full border-b border-white/10 pb-1 text-left last:mb-0 last:border-0 hover:bg-white/5">
+                <div className="font-mono">{v.version}</div>
+                <div className="opacity-70">{new Date(v.mtime).toLocaleString()}</div>
+              </button>
+            )) : <div className="opacity-70">暂无发布记录</div>}
           </div>
         </div>
 
         <div>
           <div className="mb-2 flex items-center justify-between">
             <p className="text-xs font-semibold opacity-80">操作日志</p>
-            <select
-              value={logFilter}
-              onChange={(e) => setLogFilter(e.target.value as FilterType)}
-              className="rounded bg-white/10 px-2 py-1 text-xs"
-            >
+            <select value={logFilter} onChange={(e) => setLogFilter(e.target.value as FilterType)} className="rounded bg-white/10 px-2 py-1 text-xs">
               <option value="all">全部</option>
               <option value="publish">仅发布</option>
               <option value="save">仅保存</option>
             </select>
           </div>
           <div className="max-h-52 overflow-auto rounded bg-black/30 p-2 text-xs">
-            {pagedLogs.length ? (
-              pagedLogs.map((l, idx) => (
-                <div key={`${l.at}-${idx}`} className="mb-2 border-b border-white/10 pb-1 last:mb-0 last:border-0">
-                  <div>
-                    <span className="inline-block rounded bg-white/10 px-1 py-[1px] mr-1">{l.type}</span>
-                    {l.version ? `· ${l.version}` : ""}
-                  </div>
-                  <div className="opacity-70">
-                    {new Date(l.at).toLocaleString()} {l.remark ? `· ${l.remark}` : ""}
-                  </div>
+            {pagedLogs.length ? pagedLogs.map((l, idx) => {
+              const key = `${l.at}-${idx}`;
+              const expanded = expandedLogKey === key;
+              return (
+                <div key={key} className="mb-2 border-b border-white/10 pb-1 last:mb-0 last:border-0">
+                  <button onClick={() => setExpandedLogKey(expanded ? null : key)} className="w-full text-left">
+                    <div>
+                      <span className="inline-block rounded bg-white/10 px-1 py-[1px] mr-1">{l.type}</span>
+                      {l.version ? `· ${l.version}` : ""}
+                    </div>
+                    <div className="opacity-70">{new Date(l.at).toLocaleString()}</div>
+                  </button>
+                  {expanded && (
+                    <div className="mt-1 rounded bg-white/5 p-2 opacity-90">
+                      <div>remark: {l.remark || "-"}</div>
+                      <div>at: {l.at}</div>
+                    </div>
+                  )}
                 </div>
-              ))
-            ) : (
-              <div className="opacity-70">暂无日志</div>
-            )}
+              );
+            }) : <div className="opacity-70">暂无日志</div>}
           </div>
           <div className="mt-2 flex items-center justify-between text-xs opacity-80">
             <span>第 {logPage}/{totalPages} 页</span>
             <div className="flex gap-2">
-              <button
-                disabled={logPage <= 1}
-                onClick={() => setLogPage((p) => Math.max(1, p - 1))}
-                className="rounded bg-white/10 px-2 py-1 disabled:opacity-40"
-              >
-                上一页
-              </button>
-              <button
-                disabled={logPage >= totalPages}
-                onClick={() => setLogPage((p) => Math.min(totalPages, p + 1))}
-                className="rounded bg-white/10 px-2 py-1 disabled:opacity-40"
-              >
-                下一页
-              </button>
+              <button disabled={logPage <= 1} onClick={() => setLogPage((p) => Math.max(1, p - 1))} className="rounded bg-white/10 px-2 py-1 disabled:opacity-40">上一页</button>
+              <button disabled={logPage >= totalPages} onClick={() => setLogPage((p) => Math.min(totalPages, p + 1))} className="rounded bg-white/10 px-2 py-1 disabled:opacity-40">下一页</button>
             </div>
           </div>
         </div>
@@ -213,11 +172,21 @@ export function AdminOpsPanel() {
 
       {publishResult && (
         <div className="mt-4 rounded border border-white/15 bg-black/30 p-3 text-xs">
-          <div className={`font-semibold ${publishResult.ok ? "text-emerald-300" : "text-red-300"}`}>
-            {publishResult.ok ? "发布成功" : "发布失败"}
-          </div>
+          <div className={`font-semibold ${publishResult.ok ? "text-emerald-300" : "text-red-300"}`}>{publishResult.ok ? "发布成功" : "发布失败"}</div>
           <div className="mt-1 opacity-90">{publishResult.message}</div>
           {publishResult.version ? <div className="mt-1 font-mono">版本：{publishResult.version}</div> : null}
+        </div>
+      )}
+
+      {detail && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-4" onClick={() => setDetail(null)}>
+          <div className="w-full max-w-3xl rounded border border-white/20 bg-[#111] p-3" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-2 flex items-center justify-between">
+              <h3 className="text-sm font-semibold">版本详情：{detail.version}</h3>
+              <button className="rounded bg-white/10 px-2 py-1 text-xs" onClick={() => setDetail(null)}>关闭</button>
+            </div>
+            <pre className="max-h-[60vh] overflow-auto rounded bg-black/40 p-2 text-xs text-green-200">{detail.raw}</pre>
+          </div>
         </div>
       )}
     </section>

@@ -41,6 +41,22 @@ export function appendOpLog(data: Record<string, any>) {
   writeFileSync(LOG_FILE, (existsSync(LOG_FILE) ? readFileSync(LOG_FILE, "utf8") : "") + line, "utf8");
 }
 
+export function getHistoryDetail(version: string) {
+  ensureAdminDirs();
+  const safeVersion = String(version || "").replace(/[^a-zA-Z0-9_.-]/g, "");
+  if (!safeVersion) return null;
+  const file = join(HISTORY_DIR, `${safeVersion}.json`);
+  if (!existsSync(file)) return null;
+
+  try {
+    const raw = readFileSync(file, "utf8");
+    const json = JSON.parse(raw);
+    return { version: safeVersion, raw, json };
+  } catch {
+    return null;
+  }
+}
+
 export function listHistory(limit = 20) {
   ensureAdminDirs();
   const files = readdirSync(HISTORY_DIR)
