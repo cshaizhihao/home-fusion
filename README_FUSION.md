@@ -60,4 +60,6 @@ node scripts/import-imsyy-config.mjs \
   - 一键发布（生成配置快照版本）
   - 版本记录列表
   - 操作日志列表（save/publish）
+  - Dashboard 概览卡片（发布数/日志数/最近发布/当前状态）
+  - 操作日志筛选（全部/仅发布/仅保存）
 - [ ] v0.6.x：强融合版（多主题 / 插件化 / 多环境）
