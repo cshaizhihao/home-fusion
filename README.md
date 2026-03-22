@@ -1,5 +1,7 @@
 # 个人主页
 
+> 🔀 融合版说明请看：[`README_FUSION.md`](./README_FUSION.md)
+
 remio-home(homepage): 基于配置的个人主页
 
 - Next.js构建，服务端渲染，较好的SEO
