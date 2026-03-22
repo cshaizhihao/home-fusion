@@ -4,6 +4,7 @@ set -euo pipefail
 REPO_URL="https://github.com/cshaizhihao/home-fusion.git"
 BRANCH="main"
 APP_DIR="/opt/home-fusion"
+ENV_FILE="${APP_DIR}/.env"
 CONTAINER_NAME="home-fusion-12379"
 IMAGE_NAME="home-fusion:latest"
 REMOTE_IMAGE="ghcr.io/cshaizhihao/home-fusion:main"
@@ -24,6 +25,44 @@ install_pkg(){
   else err "不支持的包管理器"; exit 1; fi
 }
 
+ensure_env_password(){
+  mkdir -p "$APP_DIR"
+
+  local pass="${HOME_FUSION_PASSWORD:-}"
+  if [[ -z "$pass" && -f "$ENV_FILE" ]]; then
+    pass="$(grep -E '^PASSWORD=' "$ENV_FILE" | tail -n1 | cut -d= -f2- || true)"
+  fi
+
+  if [[ -z "$pass" ]]; then
+    if [[ -t 0 ]]; then
+      read -r -s -p "请输入 /admin 密码（首次安装必填）: " pass
+      echo
+      if [[ -z "$pass" ]]; then
+        err "密码不能为空"
+        exit 1
+      fi
+    else
+      err "未检测到 PASSWORD。请通过环境变量传入：HOME_FUSION_PASSWORD='your_pass'"
+      exit 1
+    fi
+  fi
+
+  # 写入/更新 ENV_FILE
+  if [[ -f "$ENV_FILE" ]]; then
+    grep -v '^PASSWORD=' "$ENV_FILE" > "${ENV_FILE}.tmp" || true
+    mv "${ENV_FILE}.tmp" "$ENV_FILE"
+  fi
+  {
+    echo "PASSWORD=${pass}"
+    # 可选：保留已有扩展变量
+    [[ -n "${UPGRADE_TOKEN:-}" ]] && echo "UPGRADE_TOKEN=${UPGRADE_TOKEN}"
+    [[ -n "${GITHUB_TOKEN:-}" ]] && echo "GITHUB_TOKEN=${GITHUB_TOKEN}"
+  } >> "$ENV_FILE"
+
+  chmod 600 "$ENV_FILE"
+  log "已写入环境配置：$ENV_FILE"
+}
+
 if ! need_cmd docker; then
   log "安装 Docker..."
   if need_cmd apt-get; then
@@ -40,6 +79,8 @@ if ! need_cmd docker; then
   fi
   systemctl enable --now docker || true
 fi
+
+ensure_env_password
 
 # 优先拉取预构建镜像（最快）
 USE_REMOTE_IMAGE=0
@@ -71,7 +112,12 @@ if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
   docker rm -f "$CONTAINER_NAME" >/dev/null
 fi
 
-docker run -d --name "$CONTAINER_NAME" --restart unless-stopped -p "${HOST_PORT}:${CONTAINER_PORT}" "$IMAGE_NAME" >/dev/null
+docker run -d \
+  --name "$CONTAINER_NAME" \
+  --restart unless-stopped \
+  --env-file "$ENV_FILE" \
+  -p "${HOST_PORT}:${CONTAINER_PORT}" \
+  "$IMAGE_NAME" >/dev/null
 
 if [[ "$USE_REMOTE_IMAGE" -eq 1 ]]; then
   log "部署完成 ✅（极速镜像模式） 访问: http://<服务器IP>:${HOST_PORT}"
