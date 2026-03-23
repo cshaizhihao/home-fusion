@@ -74,7 +74,7 @@ export function UpdateCenter() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="fixed right-4 top-14 z-20 rounded-md bg-black/40 px-3 py-1 text-xs text-white backdrop-blur hover:bg-black/60"
+        className="fixed right-4 top-4 z-30 rounded-md bg-black/45 px-3 py-1 text-xs text-white backdrop-blur hover:bg-black/65"
       >
         升级中心
       </button>
