@@ -16,15 +16,15 @@ export function AdminConsole({ config }: { config: any }) {
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap gap-2">
+      <div className="sticky top-2 z-20 mb-4 flex flex-wrap gap-2 rounded-lg border border-cyan-300/20 bg-[#0b1220cc] p-2 backdrop-blur">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setActive(t.key)}
-            className={`rounded px-3 py-1 text-xs transition ${
+            className={`rounded px-3 py-1.5 text-sm font-medium transition ${
               active === t.key
-                ? "bg-cyan-500/80 text-white"
-                : "bg-white/10 text-white/80 hover:bg-white/20"
+                ? "bg-cyan-500/90 text-white shadow-[0_0_0_1px_rgba(255,255,255,.2)]"
+                : "bg-white/10 text-white hover:bg-white/20"
             }`}
           >
             {t.label}
