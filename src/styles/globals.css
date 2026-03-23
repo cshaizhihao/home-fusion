@@ -52,21 +52,44 @@ body.fusion-imsyy .rounded-xl {
 .admin-console * {
   color: #e8eeff;
 }
+
+/* 强制提升后台表单文本可读性（NextUI 各组件统一） */
+.admin-console label,
+.admin-console [data-slot="label"],
+.admin-console .text-small,
+.admin-console [data-slot="description"],
+.admin-console [data-slot="value"],
+.admin-console [role="radio"] span,
+.admin-console [role="checkbox"] span,
+.admin-console [role="option"],
+.admin-console .nextui-select-value,
+.admin-console .nextui-input-label {
+  color: #f2f6ff !important;
+  opacity: 1 !important;
+}
+
 .admin-console .text-white\/70,
 .admin-console .text-white\/60,
-.admin-console .text-white\/50 {
-  color: #c9d6ff !important;
+.admin-console .text-white\/50,
+.admin-console .opacity-70,
+.admin-console .opacity-60 {
+  color: #d8e4ff !important;
+  opacity: 1 !important;
 }
+
 .admin-console input,
 .admin-console textarea,
-.admin-console select {
+.admin-console select,
+.admin-console [data-slot="input-wrapper"],
+.admin-console [data-slot="inner-wrapper"] {
   color: #f4f7ff !important;
-  background: rgba(8, 14, 28, 0.75) !important;
-  border-color: rgba(130, 170, 255, 0.35) !important;
+  background: rgba(8, 14, 28, 0.82) !important;
+  border-color: rgba(130, 170, 255, 0.45) !important;
 }
+
 .admin-console input::placeholder,
 .admin-console textarea::placeholder {
-  color: rgba(226, 236, 255, 0.58) !important;
+  color: rgba(226, 236, 255, 0.72) !important;
 }
 
 .mio-hidden {
