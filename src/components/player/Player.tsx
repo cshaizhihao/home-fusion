@@ -40,7 +40,7 @@ export const Player = ({ musicConfig }: { size?: number; musicConfig?: MusicConf
 
       <div
         style={{ backgroundColor: "rgba(var(--mio-main), 0.22)" }}
-        className="fixed right-4 bottom-16 z-20 w-[320px] max-w-[90vw] select-none rounded-md p-2 text-white backdrop-blur"
+        className="home-widget home-widget-player fixed right-4 bottom-16 z-20 w-[320px] max-w-[90vw] select-none rounded-md p-2 text-white backdrop-blur"
       >
         <div className="mb-1 text-xs font-semibold">音乐模块</div>
         {!metingReady && (

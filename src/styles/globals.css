@@ -47,6 +47,36 @@ body.fusion-imsyy .rounded-xl {
   border-radius: var(--fusion-card-radius) !important;
 }
 
+/* front widgets layout system */
+.home-widget {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+@media (max-width: 768px) {
+  .home-widget-update {
+    right: 10px !important;
+    top: 10px !important;
+    z-index: 40 !important;
+  }
+  .home-widget-weather {
+    left: 10px !important;
+    top: 52px !important;
+    min-width: 120px !important;
+  }
+  .home-widget-player {
+    left: 10px !important;
+    right: 10px !important;
+    bottom: 88px !important;
+    width: auto !important;
+    max-width: none !important;
+  }
+  .home-widget-progress {
+    bottom: 8px !important;
+    width: calc(100vw - 20px) !important;
+  }
+}
+
 /* admin contrast hardening */
 .admin-console,
 .admin-console * {

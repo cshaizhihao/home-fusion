@@ -97,7 +97,7 @@ export function Horizontal({
   return (
     <div
       className={clsx(
-        "mx-auto flex z-[1] relative min-h-screen w-11/12 flex-wrap items-center justify-between pb-10 md:w-[68vw]",
+        "relative z-[1] mx-auto flex min-h-screen w-11/12 max-w-[1200px] flex-wrap items-center justify-between px-3 pb-10 md:w-[78vw]",
         {
           "gap-[30px]": gapSize == "md",
           "gap-8": gapSize == "sm",

@@ -32,7 +32,7 @@ export const Weather = ({ size = 18 }: { size: number }) => {
   if (!weatherInfo) return null;
 
   return (
-    <div style={{ backgroundColor: "rgba(var(--mio-main), 0.22)" }} className="fixed left-4 top-16 z-20 flex min-w-[128px] select-none items-center justify-between gap-2 rounded-md px-2 py-1 backdrop-blur">
+    <div style={{ backgroundColor: "rgba(var(--mio-main), 0.22)" }} className="home-widget home-widget-weather fixed left-4 top-16 z-20 flex min-w-[128px] select-none items-center justify-between gap-2 rounded-md px-2 py-1 backdrop-blur">
       <div className="flex items-center text-white">
         <span className="text-xs">{weatherInfo?.city?.replace("市", "") || "天气"}</span>
         <span>·</span>
