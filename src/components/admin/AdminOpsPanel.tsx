@@ -217,6 +217,15 @@ export function AdminOpsPanel() {
 
   return (
     <section className="mb-4 rounded border border-white/15 bg-white/5 p-4">
+      <div className="mb-3 rounded border border-white/10 bg-black/20 p-2 text-xs">
+        <div className="mb-2 font-semibold">运维快捷分组</div>
+        <div className="flex flex-wrap gap-2">
+          <a href="#group-publish" className="rounded bg-white/10 px-2 py-1 hover:bg-white/20">发布与日志</a>
+          <a href="#group-upgrade" className="rounded bg-white/10 px-2 py-1 hover:bg-white/20">升级队列</a>
+          <a href="#group-health" className="rounded bg-white/10 px-2 py-1 hover:bg-white/20">健康检查</a>
+          <a href="#group-modules" className="rounded bg-white/10 px-2 py-1 hover:bg-white/20">模块与预设</a>
+        </div>
+      </div>
       <div className="mb-4 grid gap-2 md:grid-cols-4">
         <Card title="发布版本数" value={String(history.length)} />
         <Card title="日志条数" value={String(logs.length)} />
@@ -233,7 +242,7 @@ export function AdminOpsPanel() {
       )}
 
       {moduleCheck && (
-        <div className={`mb-3 rounded border p-2 text-xs ${moduleCheck.healthy ? "border-emerald-300/30 bg-emerald-100/10" : "border-amber-300/30 bg-amber-100/10"}`}>
+        <div id="group-modules" className={`mb-3 rounded border p-2 text-xs ${moduleCheck.healthy ? "border-emerald-300/30 bg-emerald-100/10" : "border-amber-300/30 bg-amber-100/10"}`}>
           <div className="font-semibold">模块依赖检查：{moduleCheck.healthy ? "通过" : "存在风险"}</div>
           {moduleCheck.warnings?.length ? (
             <ul className="mt-1 list-disc pl-4">
@@ -284,7 +293,7 @@ export function AdminOpsPanel() {
         </div>
       )}
 
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+      <div id="group-publish" className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-semibold">发布中心 / 版本记录 / 操作日志</h2>
         <div className="flex flex-wrap gap-2">
           <input value={remarkDraft} onChange={(e) => setRemarkDraft(e.target.value)} placeholder="发布备注" className="rounded bg-white/10 px-2 py-1 text-xs" />
@@ -369,9 +378,9 @@ export function AdminOpsPanel() {
         </div>
       </div>
 
-      <div className="mt-4 rounded border border-white/15 bg-black/30 p-3 text-xs">
+      <div id="group-upgrade" className="mt-4 rounded border border-white/15 bg-black/30 p-3 text-xs">
         <div className="mb-2 flex items-center justify-between">
-          <div className="font-semibold">升级任务队列（v0.5 MVP）</div>
+          <div className="font-semibold">升级任务队列（分组：升级）</div>
           <div className="flex gap-2">
             <button onClick={enqueueUpgradeJob} disabled={inCooldown("upgrade_enqueue")} className="rounded bg-indigo-500/70 px-2 py-1 hover:bg-indigo-500 disabled:opacity-60">{inCooldown("upgrade_enqueue") ? `冷却(${cooldownSec("upgrade_enqueue")}s)` : "添加升级任务"}</button>
             <button onClick={runNextJob} disabled={inCooldown("upgrade_run")} className="rounded bg-emerald-500/70 px-2 py-1 hover:bg-emerald-500 disabled:opacity-60">{inCooldown("upgrade_run") ? `冷却(${cooldownSec("upgrade_run")}s)` : "执行下一个"}</button>
@@ -389,9 +398,9 @@ export function AdminOpsPanel() {
         </div>
       </div>
 
-      <div className="mt-4 rounded border border-white/15 bg-black/30 p-3 text-xs">
+      <div id="group-health" className="mt-4 rounded border border-white/15 bg-black/30 p-3 text-xs">
         <div className="mb-2 flex items-center justify-between">
-          <div className="font-semibold">健康检查（v0.5 基础告警）</div>
+          <div className="font-semibold">健康检查（分组：健康）</div>
           <button onClick={runHealth} className="rounded bg-amber-500/70 px-2 py-1 hover:bg-amber-500">执行健康检查</button>
         </div>
         <div className="max-h-32 overflow-auto rounded bg-black/40 p-2">
